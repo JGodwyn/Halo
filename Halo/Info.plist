@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>UIAppFonts</key>
+	<array>
+		<string>LibreCaslonText-Regular.ttf</string>
+		<string>LibreCaslonText-Italic.ttf</string>
+		<string>LibreCaslonText-Bold.ttf</string>
+		<string>LibreCaslonCondensed-Regular.ttf</string>
+		<string>LibreCaslonCondensed-Italic.ttf</string>
+		<string>LibreCaslonCondensed-Medium.ttf</string>
+		<string>LibreCaslonCondensed-MediumItalic.ttf</string>
+		<string>LibreCaslonCondensed-SemiBold.ttf</string>
+		<string>LibreCaslonCondensed-SemiBoldItalic.ttf</string>
+		<string>LibreCaslonCondensed-Bold.ttf</string>
+		<string>LibreCaslonCondensed-BoldItalic.ttf</string>
+	</array>
+</dict>
+</plist>

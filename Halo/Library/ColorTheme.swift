@@ -130,7 +130,7 @@ public enum FunctionalColor {
 //   .padding(Padding.padMd)
 //   .cornerRadius(Radius.radSm)
 
-public enum HaloTheme {
+public enum HaloColor {
 
     // ────────────────────────────────────────────────────────────────────
     // MARK: Text

@@ -15,10 +15,11 @@ struct HomeView: View {
     var body: some View {
         ScrollView {
             Text("I need to use another font")
-                .foregroundStyle(HaloTheme.textBold)
+                .foregroundStyle(HaloColor.textBold)
+                .textStyle(HaloFont.bodyLg)
         }
         .frame(maxWidth: .infinity)
-        .background(HaloTheme.surface2)
+        .background(HaloColor.surface2)
     }
 }
 
