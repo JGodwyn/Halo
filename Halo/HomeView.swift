@@ -14,16 +14,21 @@ struct HomeView: View {
     
     var body: some View {
         ScrollView {
-            Text("I need to use another font")
-                .foregroundStyle(HaloColor.textBold)
-                .textStyle(HaloFont.bodyLg)
+            
+            Image("BrainIllustration")
+                .resizable()
+                .frame(width: 400, height: 400)
+            
+            HaloText(text: "I need to use another font")
+            
         }
         .frame(maxWidth: .infinity)
-        .background(HaloColor.surface2)
+        .noiseBackground()
     }
 }
 
 #Preview {
     HomeView()
         .modelContainer(for: Item.self, inMemory: true)
+        .environment(\.font, .custom("LibreCaslonText-Regular", size: 17, relativeTo: .body))
 }

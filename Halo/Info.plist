@@ -16,5 +16,14 @@
 		<string>LibreCaslonCondensed-Bold.ttf</string>
 		<string>LibreCaslonCondensed-BoldItalic.ttf</string>
 	</array>
+	<key>UILaunchScreen</key>
+	<dict>
+		<key>UIColorName</key>
+		<string>LaunchScreenColor</string>
+		<key>UIImageName</key>
+		<string>Logomark</string>
+		<key>UILaunchScreen</key>
+		<dict/>
+	</dict>
 </dict>
 </plist>

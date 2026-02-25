@@ -22,10 +22,11 @@ struct HaloApp: App {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
-
     var body: some Scene {
         WindowGroup {
             HomeView()
+                .noiseBackground()
+                .environment(\.font, .custom("LibreCaslonText-Regular", size: 17, relativeTo: .body))
         }
         .modelContainer(sharedModelContainer)
     }

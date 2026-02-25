@@ -343,3 +343,28 @@ public enum HaloColor {
     public static let tableSurfaceHeaderSelected = BrandColor.Lavender.lavender1000
 
 }
+
+
+// MARK: -- Noise Background
+
+public struct NoiseBackgroundModifier: ViewModifier {
+    
+    let isLight : Bool
+    
+    public func body(content: Content) -> some View {
+        content
+            .background {
+                isLight ? HaloColor.surface1.ignoresSafeArea() : HaloColor.surface2.ignoresSafeArea()
+                Image("NoiseBg")
+                    .resizable(resizingMode: .tile)
+                    .blendMode(.multiply)
+                    .ignoresSafeArea()
+            }
+    }
+}
+
+public extension View {
+    func noiseBackground(isLight : Bool = false) -> some View {
+        modifier(NoiseBackgroundModifier(isLight: isLight))
+    }
+}
