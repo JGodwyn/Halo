@@ -10,6 +10,9 @@ import SwiftData
 
 @main
 struct HaloApp: App {
+    
+    @State var authObj = AuthManager()
+    
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Item.self,
@@ -24,10 +27,11 @@ struct HaloApp: App {
     }()
     var body: some Scene {
         WindowGroup {
-            HomeView()
+            EntryView()
                 .noiseBackground()
-                .environment(\.font, .custom("LibreCaslonText-Regular", size: 17, relativeTo: .body))
         }
+        .environment(authObj)
+        .environment(\.font, .custom("LibreCaslonText-Regular", size: 17, relativeTo: .body))
         .modelContainer(sharedModelContainer)
     }
 }

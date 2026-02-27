@@ -121,62 +121,68 @@ public extension HaloTextStyle {
         fontName: bodyRegular,
         size: 17,
         relativeTo: .body,
-        kerning: 0
+        kerning: 0,
+        lineSpacing: 7
     )
     
     static let bodyLgBold: HaloTextStyle = HaloTextStyle(
         fontName: bodyBold,
         size: 17,
         relativeTo: .body,
-        kerning: 0
+        kerning: 0,
+        lineSpacing: 7
     )
     
     static let bodyMd: HaloTextStyle = HaloTextStyle(
         fontName: bodyRegular,
         size: 14,
         relativeTo: .body,
-        kerning: 0
+        kerning: 0,
+        lineSpacing: 7
     )
     
     static let bodyMdBold: HaloTextStyle = HaloTextStyle(
         fontName: bodyBold,
         size: 14,
         relativeTo: .body,
-        kerning: 0
+        kerning: 0,
+        lineSpacing: 7
     )
     
     static let bodySm: HaloTextStyle = HaloTextStyle(
         fontName: bodyRegular,
         size: 11,
         relativeTo: .body,
-        kerning: 0
+        kerning: 0,
+        lineSpacing: 7
     )
     
     static let bodySmBold: HaloTextStyle = HaloTextStyle(
         fontName: bodyBold,
         size: 11,
         relativeTo: .body,
-        kerning: 0
+        kerning: 0,
+        lineSpacing: 7
     )
     
     
     // MARK: - Others
     
     static let btnLg: HaloTextStyle = HaloTextStyle(
-        fontName: bodyBold,
+        fontName: header,
         size: 18,
         relativeTo: .body,
-        kerning: -2
+        kerning: 0
     )
     
     static let btnSm: HaloTextStyle = HaloTextStyle(
-        fontName: bodyBold,
+        fontName: header,
         size: 10,
         relativeTo: .body,
         kerning: 0
     )
     
-    static  let link: HaloTextStyle = HaloTextStyle(
+    static let link: HaloTextStyle = HaloTextStyle(
         fontName: bodyBold,
         size: 17,
         relativeTo: .body,

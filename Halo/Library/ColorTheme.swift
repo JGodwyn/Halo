@@ -201,30 +201,33 @@ public enum HaloColor {
     // MARK: Button
     // ────────────────────────────────────────────────────────────────────
 
-    public static let buttonBrandPrimaryRest = BrandColor.Lavender.lavender1000
+    public static let buttonBrandPrimaryRest = BrandColor.Powder.powder100
     public static let buttonBrandPrimaryHover = BrandColor.Lavender.lavender800
     public static let buttonBrandPrimaryPressed = BrandColor.Lavender.lavender900
     public static let buttonBrandPrimaryFocused = BrandColor.Lavender.lavender1000
-    public static let buttonBrandPrimaryDisabled = BrandColor.Gray.gray300
-    public static let buttonBrandSecondaryRest = BrandColor.Lavender.lavender100
+    public static let buttonBrandPrimaryDisabled = BrandColor.Gray.gray200
+    
+    public static let buttonBrandSecondaryRest = BrandColor.Gray.gray300
     public static let buttonBrandSecondaryHover = BrandColor.Lavender.lavender200
     public static let buttonBrandSecondaryPressed = BrandColor.Lavender.lavender400
     public static let buttonBrandSecondaryFocused = BrandColor.Lavender.lavender100
-    public static let buttonBrandSecondaryDisabled = BrandColor.Gray.gray300
+    public static let buttonBrandSecondaryDisabled = BrandColor.Gray.gray200
+    
     public static let buttonBrandGhostHover = BrandColor.Lavender.lavender200
     public static let buttonBrandGhostPressed = BrandColor.Lavender.lavender400
     public static let buttonBrandStrokeHover = BrandColor.Lavender.lavender200
     public static let buttonBrandStrokePressed = BrandColor.Lavender.lavender400
+    
     public static let buttonSuccessPrimaryRest = FunctionalColor.Green.green700
     public static let buttonSuccessPrimaryHover = FunctionalColor.Green.green800
     public static let buttonSuccessPrimaryPressed = FunctionalColor.Green.green900
     public static let buttonSuccessPrimaryFocused = FunctionalColor.Green.green700
-    public static let buttonSuccessPrimaryDisabled = BrandColor.Gray.gray300
+    public static let buttonSuccessPrimaryDisabled = BrandColor.Gray.gray200
     public static let buttonSuccessSecondaryRest = FunctionalColor.Green.green50
     public static let buttonSuccessSecondaryHover = FunctionalColor.Green.green200
     public static let buttonSuccessSecondaryPressed = FunctionalColor.Green.green400
     public static let buttonSuccessSecondaryFocused = FunctionalColor.Green.green50
-    public static let buttonSuccessSecondaryDisabled = BrandColor.Gray.gray300
+    public static let buttonSuccessSecondaryDisabled = BrandColor.Gray.gray200
     public static let buttonSuccessGhostHover = FunctionalColor.Green.green200
     public static let buttonSuccessGhostPressed = FunctionalColor.Green.green400
     public static let buttonSuccessStrokeHover = FunctionalColor.Green.green200
@@ -233,12 +236,12 @@ public enum HaloColor {
     public static let buttonDangerPrimaryHover = FunctionalColor.Red.red800
     public static let buttonDangerPrimaryPressed = FunctionalColor.Red.red900
     public static let buttonDangerPrimaryFocused = FunctionalColor.Red.red600
-    public static let buttonDangerPrimaryDisabled = BrandColor.Gray.gray300
+    public static let buttonDangerPrimaryDisabled = BrandColor.Gray.gray200
     public static let buttonDangerSecondaryRest = FunctionalColor.Red.red50
     public static let buttonDangerSecondaryHover = FunctionalColor.Red.red200
     public static let buttonDangerSecondaryPressed = FunctionalColor.Red.red400
     public static let buttonDangerSecondaryFocused = FunctionalColor.Red.red50
-    public static let buttonDangerSecondaryDisabled = BrandColor.Gray.gray300
+    public static let buttonDangerSecondaryDisabled = BrandColor.Gray.gray200
     public static let buttonDangerGhostHover = FunctionalColor.Red.red200
     public static let buttonDangerGhostPressed = FunctionalColor.Red.red400
     public static let buttonDangerStrokeHover = FunctionalColor.Red.red200
@@ -247,12 +250,12 @@ public enum HaloColor {
     public static let buttonWarningPrimaryHover = FunctionalColor.Amber.amber800
     public static let buttonWarningPrimaryPressed = FunctionalColor.Amber.amber900
     public static let buttonWarningPrimaryFocused = FunctionalColor.Amber.amber700
-    public static let buttonWarningPrimaryDisabled = BrandColor.Gray.gray300
+    public static let buttonWarningPrimaryDisabled = BrandColor.Gray.gray200
     public static let buttonWarningSecondaryRest = FunctionalColor.Amber.amber100
     public static let buttonWarningSecondaryHover = FunctionalColor.Amber.amber200
     public static let buttonWarningSecondaryPressed = FunctionalColor.Amber.amber400
     public static let buttonWarningSecondaryFocused = FunctionalColor.Amber.amber100
-    public static let buttonWarningSecondaryDisabled = BrandColor.Gray.gray300
+    public static let buttonWarningSecondaryDisabled = BrandColor.Gray.gray200
     public static let buttonWarningGhostHover = FunctionalColor.Amber.amber200
     public static let buttonWarningGhostPressed = FunctionalColor.Amber.amber400
     public static let buttonWarningStrokeHover = FunctionalColor.Amber.amber200
