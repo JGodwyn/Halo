@@ -13,15 +13,21 @@ struct EntryView: View {
     
     var body: some View {
         ZStack {
-            if auth.isLoggedIn {
+            switch auth.loginStatus {
+            case .loggedIn :
                 HomeView()
                     .transition(.opacity)
-            }
-            
-            if !auth.isLoggedIn {
+            case .loggedOut :
                 AuthView()
                     .transition(.opacity)
+            case .onboarding :
+                OnboardingView()
+                    .transition(.opacity)
             }
+        }
+        .noiseBackground() // just for the preview
+        .task {
+            await auth.fetchProfile()
         }
     }
 }

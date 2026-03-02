@@ -198,6 +198,7 @@ public extension View {
             .kerning(style.kerning ?? 0)
             .lineSpacing(style.lineSpacing ?? 0)
             .textCase(style.textCase)
+            .foregroundStyle(HaloColor.textBold)
     }
 }
 

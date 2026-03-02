@@ -10,6 +10,7 @@ import SwiftUI
 struct AuthView: View {
     
     @Environment(AuthManager.self) var auth
+    @State private var isButtonLoading : Bool = false
     
     var body: some View {
         ZStack {
@@ -34,8 +35,10 @@ struct AuthView: View {
                         .fixedSize(horizontal: false, vertical: true)
                     
                     VStack(spacing: 16) {
-                        MainButton(label: "Sign In With Google", image: "GoogleLogo", fillContainer: true){
-                            auth.logIn()
+                        MainButton(label: "Sign In With Google", image: "GoogleLogo", fillContainer: true) {
+                            Task {
+                                await auth.signInWithGoogle()
+                            }
                         }
                         
                         MainButton(label: "Sign In With Apple", image: "AppleLogo", fillContainer: true){}

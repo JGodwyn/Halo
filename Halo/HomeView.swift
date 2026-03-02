@@ -17,8 +17,21 @@ struct HomeView: View {
     
     var body: some View {
         ScrollView {
-            MainButton(label: "Log Out") {
-                auth.logOut()
+            VStack {
+                HaloText(text: "This is your user name")
+                Text(auth.userName ?? "No name provided")
+                    .fontStyle(.bodyLg)
+                
+                HaloText(text: "This is your date of birth")
+                if let dob = auth.dateOfBirth {
+                    Text(dob.formatted(date: .abbreviated, time: .omitted))
+                        .fontStyle(.bodyLg)
+                }
+                
+                
+                MainButton(label: "Log Out") {
+                    auth.logOut()
+                }
             }
         }
         .frame(maxWidth: .infinity)

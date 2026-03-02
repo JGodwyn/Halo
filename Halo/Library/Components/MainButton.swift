@@ -10,6 +10,7 @@ import SwiftUI
 struct MainButton : View {
     
     let state : ButtonStates
+    var isLoading : Bool
     let btnLabel : String
     let btnIcon : String?
     let btnImage : String?
@@ -19,28 +20,30 @@ struct MainButton : View {
 
     init(
         state: ButtonStates = .primary,
+        isLoading : Bool = false,
         label: String = "No label",
          icon: String? = nil,
          image: String? = nil,
          height: CGFloat = 56,
          fillContainer: Bool = false,
          action: @escaping () -> Void) {
-            self.state = state
-            self.btnLabel = label
-            self.btnIcon = icon
-            self.btnImage = image
-            self.height = height
-            self.fillContainer = fillContainer
-            self.tappedButton = action
+             self.state = state
+             self.isLoading = isLoading
+             self.btnLabel = label
+             self.btnIcon = icon
+             self.btnImage = image
+             self.height = height
+             self.fillContainer = fillContainer
+             self.tappedButton = action
     }
     
     var body: some View {
         Button (action: tappedButton) {
             Text(btnLabel)
+                .foregroundStyle(state.textColor)
         }
-        .foregroundStyle(state.textColor)
         .disabled(state.disabled)
-        .buttonStyle(MainButtonStyle(icon: btnIcon, image: btnImage, backgroundColor: state.backgroundColor, height: height, fillContainer: fillContainer))
+        .buttonStyle(MainButtonStyle(isLoading: isLoading ,icon: btnIcon, image: btnImage, backgroundColor: state.backgroundColor, foregroundColor: state.textColor, height: height, fillContainer: fillContainer))
     }
 }
 
@@ -59,26 +62,34 @@ struct MainButton : View {
 
 
 struct MainButtonStyle : ButtonStyle {
+    var isLoading : Bool
     var icon : String?
     var image : String?
     var backgroundColor : Color
+    var foregroundColor : Color
     var height : CGFloat
     var fillContainer : Bool
     
     func makeBody(configuration: Configuration) -> some View {
         HStack {
-            if let icon {
-                Image(systemName: icon)
-                    .font(.system(size: 16))
+            if !isLoading {
+                if let icon {
+                    Image(systemName: icon)
+                        .font(.system(size: 16))
+                        .foregroundStyle(foregroundColor)
+                }
+                
+                if let image {
+                    Image(image)
+                        .resizeImageTo(18)
+                }
+                
+                configuration.label
+                    .fontStyle(.btnLg)
+
+            } else {
+                ProgressView()
             }
-            
-            if let image {
-                Image(image)
-                    .resizeImageTo(18)
-            }
-            
-            configuration.label
-                .fontStyle(.btnLg)
         }
         .padding(.horizontal, 24)
         .padding(.vertical, 8)
