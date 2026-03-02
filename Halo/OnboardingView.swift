@@ -11,6 +11,7 @@ struct OnboardingView: View {
     
     @Environment(AuthManager.self) var auth
     @State private var dob : Date = Date()
+    @State private var userName : String = ""
     
     private var earliestBirthDate: Date {
         Calendar.current.date(byAdding: .year, value: -120, to: Date())!
@@ -18,27 +19,37 @@ struct OnboardingView: View {
     
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading) {
-                HStack {
-                    HaloText(text: "This is your onboarding: ")
-                    if let username = auth.userName {
-                        HaloText(text: username)
-                    }
+            VStack(alignment: .center, spacing: 24) {
+                
+                VStack {
+                    Text("Hi there, " + (auth.userName ?? "Debug name"))
+                        .fontStyle(.titleLg, color: HaloColor.textSubtle)
+                    
+                    HaloText(text: "Just the following to complete your account", style: .headingSm)
+                        .multilineTextAlignment(.center)
                 }
                 
-                HStack {
-                    HaloText(text: "Your date of birth")
-                    Spacer()
-                    DatePicker(selection: $dob, in: earliestBirthDate...Date(), displayedComponents: .date) {
+                VStack(spacing: 16) {
+                    RoundTextField(boundTo: $userName)
+                    
+                    HStack {
+                        HaloText(text: "Your date of birth", color: HaloColor.textSubtle)
                         
+                        Spacer()
+                        DatePicker(selection: $dob, in: earliestBirthDate...Date(), displayedComponents: .date) {
+                            
+                        }
+                        .labelsHidden()
                     }
-                    .labelsHidden()
-                    .colorInvert()
+                    .padding(.trailing, 8)
+                    .padding(.leading, 16)
+                    .padding(.vertical, 8)
+                    .background(HaloColor.surface1, in: RoundedRectangle(cornerRadius: .infinity))
                 }
                 
-                MainButton(label: "Save Profile", fillContainer: true) {
+                MainButton(label: "Continue", fillContainer: true) {
                     Task {
-                        await auth.saveProfile(dateOfBirth: dob)
+                        await auth.saveProfile(username: userName, dateOfBirth: dob)
                     }
                 }
                 
@@ -48,6 +59,9 @@ struct OnboardingView: View {
         .padding(Padding.mgnMobile)
         .frame(maxWidth: .infinity)
         .noiseBackground()
+        .onAppear {
+            userName = auth.userName ?? ""
+        }
     }
 }
 
@@ -55,4 +69,5 @@ struct OnboardingView: View {
     OnboardingView()
         .environment(AuthManager())
         .environment(\.font, .custom("LibreCaslonText-Regular", size: 17, relativeTo: .body))
+        .preferredColorScheme(.dark)
 }

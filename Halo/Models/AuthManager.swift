@@ -182,13 +182,13 @@ final class AuthManager {
         }
     }
 
-    func saveProfile(dateOfBirth: Date) async {
+    func saveProfile(username: String, dateOfBirth: Date) async {
         guard let userId = try? await supabase.auth.session.user.id else { return }
 
         do {
             let profile = Profile(
                 id: userId,
-                fullName: userName,
+                fullName: username,
                 dateOfBirth: dateOfBirth
             )
 
@@ -196,7 +196,8 @@ final class AuthManager {
                 .from("profiles")
                 .upsert(profile)
                 .execute()
-
+            
+            self.userName = username
             self.dateOfBirth = dateOfBirth
 
             withAnimation(.interactiveSpring(response: 0.6, dampingFraction: 0.8)) {

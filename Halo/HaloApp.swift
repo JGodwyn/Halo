@@ -28,6 +28,7 @@ struct HaloApp: App {
     var body: some Scene {
         WindowGroup {
             EntryView()
+                .preferredColorScheme(.dark)
                 .noiseBackground()
         }
         .environment(authObj)

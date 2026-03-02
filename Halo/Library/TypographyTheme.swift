@@ -87,7 +87,7 @@ public extension HaloTextStyle {
         fontName: header,
         size: 27,
         relativeTo: .title,
-        kerning: -3
+        kerning: -1
     )
     
     
@@ -97,7 +97,7 @@ public extension HaloTextStyle {
         fontName: header,
         size: 22,
         relativeTo: .title2,
-        kerning: -3
+        kerning: -1
     )
     
     static let titleMd: HaloTextStyle = HaloTextStyle(
@@ -193,12 +193,12 @@ public extension HaloTextStyle {
 }
 
 public extension View {
-    func fontStyle(_ style: HaloTextStyle) -> some View {
+    func fontStyle(_ style: HaloTextStyle, color : Color = HaloColor.textBold) -> some View {
         font(.custom(style.fontName, size: style.size, relativeTo: style.relativeTo))
             .kerning(style.kerning ?? 0)
             .lineSpacing(style.lineSpacing ?? 0)
             .textCase(style.textCase)
-            .foregroundStyle(HaloColor.textBold)
+            .foregroundStyle(color)
     }
 }
 
@@ -210,8 +210,7 @@ struct HaloText: View {
 
     var body: some View {
         Text(text)
-            .fontStyle(style)
-            .foregroundStyle(color)
+            .fontStyle(style, color: color)
     }
 }
 
