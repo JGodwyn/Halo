@@ -73,14 +73,14 @@ public extension HaloTextStyle {
         fontName: header,
         size: 43,
         relativeTo: .title,
-        kerning: -3
+        kerning: -1
     )
     
     static let headingMd: HaloTextStyle = HaloTextStyle(
         fontName: header,
         size: 34,
         relativeTo: .title,
-        kerning: -2
+        kerning: -1
     )
     
     static let headingSm: HaloTextStyle = HaloTextStyle(

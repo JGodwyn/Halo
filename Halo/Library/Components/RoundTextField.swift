@@ -38,6 +38,11 @@ struct RoundTextField: View {
             RoundTextField(state: .disabled(message: "This is helper text") ,boundTo: .constant(""))
             
             RoundTextField(state: .base(message: "This is helper text") ,boundTo: .constant(""))
+            
+            RoundTextField(state: .base(message: "This is helper text") ,boundTo: .constant(""))
+            
+            MainButton(label: "Remove focus") {}
+            
         }
     }
     .environment(AuthManager())
@@ -81,7 +86,7 @@ struct CustomRoundedTextField : ViewModifier {
                 .background(effectiveState.backgroundColor, in: .rect(cornerRadius: cornerRadius, style: .continuous))
                 .overlay {
                     RoundedRectangle(cornerRadius: cornerRadius)
-                        .stroke(effectiveState.strokeColor, lineWidth: strokeWidth)
+                        .strokeBorder(effectiveState.strokeColor, lineWidth: strokeWidth)
                     
                     if showShadow {
                         RoundedRectangle(cornerRadius: cornerRadius)
@@ -154,7 +159,7 @@ enum TextFieldStates : Equatable {
         case .success:
             return .green.opacity(0.1)
         case .focused:
-            return .blue.opacity(0.1)
+            return HaloColor.textInputSurfaceRest
         case .disabled:
             return BrandColor.Gray.gray100
         }
@@ -169,7 +174,7 @@ enum TextFieldStates : Equatable {
         case .success:
             return .green
         case .focused:
-            return .blue.opacity(0.5)
+            return BrandColor.Powder.powder200
         case .disabled:
             return BrandColor.Gray.gray200
         }

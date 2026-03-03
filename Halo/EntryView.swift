@@ -24,6 +24,13 @@ struct EntryView: View {
                 OnboardingView()
                     .transition(.opacity)
             }
+            
+            if auth.isLoading {
+                Color.black.opacity(0.7).ignoresSafeArea()
+                ProgressView()
+                    .tint(.white)
+                    .controlSize(.extraLarge)
+            }
         }
         .noiseBackground() // just for the preview
         .task {

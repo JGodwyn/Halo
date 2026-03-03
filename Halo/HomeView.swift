@@ -29,13 +29,24 @@ struct HomeView: View {
                 }
                 
                 
-                MainButton(label: "Log Out") {
+                MainButton(label: "Log Out", fillContainer: true) {
                     auth.logOut()
                 }
+                
+                MainButton(label: "Show connect modal", fillContainer: true) {
+                    auth.showConnectHealthModal(true)
+                }
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .noiseBackground()
+        .overlay {
+            if auth.showConnectHealthProvider {
+                ConnectHealthProviderView()
+                    .transition(.move(edge: .top).combined(with: .scale).combined(with: .opacity))
+//                    .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
-        .frame(maxWidth: .infinity)
-        .noiseBackground()
     }
 }
 

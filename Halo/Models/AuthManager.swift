@@ -70,8 +70,8 @@ final class AuthManager {
 
     // Persisted so the app remembers state across restarts
     @ObservationIgnored
-    @AppStorage("loginStatus") private(set) var _loginStatus: String = AuthStatus.loggedOut.rawValue
-    var loginStatus: AuthStatus {
+    @AppStorage("loginStatus") var _loginStatus: String = AuthStatus.loggedOut.rawValue
+    private(set) var loginStatus: AuthStatus {
         get {
             access(keyPath: \.loginStatus)
             return AuthStatus(rawValue: _loginStatus) ?? .loggedOut
@@ -84,8 +84,8 @@ final class AuthManager {
     }
     
     @ObservationIgnored
-    @AppStorage("userName") private(set) var _userName: String = ""
-    var userName: String? {
+    @AppStorage("userName") var _userName: String = ""
+    private(set) var userName: String? {
         get {
             access(keyPath: \.userName)
             return _userName.isEmpty ? nil : _userName
@@ -98,8 +98,8 @@ final class AuthManager {
     }
 
     @ObservationIgnored
-    @AppStorage("dateOfBirth") private(set) var _dateOfBirth: Double = 0
-    var dateOfBirth: Date? {
+    @AppStorage("dateOfBirth") var _dateOfBirth: Double = 0
+    private(set) var dateOfBirth: Date? {
         get {
             access(keyPath: \.dateOfBirth)
             return _dateOfBirth == 0 ? nil : Date(timeIntervalSince1970: _dateOfBirth)
@@ -111,13 +111,32 @@ final class AuthManager {
         }
     }
     
+    @ObservationIgnored
+    @AppStorage("showConnectHealthProvider") var _showConnectHealthProvider : Bool = true
+    private(set) var showConnectHealthProvider: Bool {
+        get {
+            access(keyPath: \.showConnectHealthProvider)
+            return _showConnectHealthProvider
+        }
+        set {
+            withMutation(keyPath: \.showConnectHealthProvider) {
+                _showConnectHealthProvider = newValue
+            }
+        }
+    }
     
     var errorMessage: String? = nil
+    
+    var isLoading: Bool = false
 
     // MARK: - Google Sign In
 
     @MainActor
     func signInWithGoogle() async {
+        
+        isLoading = true
+        defer { isLoading = false }
+        
         guard let rootViewController = UIApplication.shared
             .connectedScenes
             .compactMap({ $0 as? UIWindowScene })
@@ -183,6 +202,9 @@ final class AuthManager {
     }
 
     func saveProfile(username: String, dateOfBirth: Date) async {
+        isLoading = true
+        defer { isLoading = false }
+        
         guard let userId = try? await supabase.auth.session.user.id else { return }
 
         do {
@@ -210,6 +232,9 @@ final class AuthManager {
     }
 
     func fetchProfile() async {
+        isLoading = true
+        defer { isLoading = false }
+        
         guard loginStatus != .loggedOut else { return }
 
         // Check if Supabase has a valid session first
@@ -248,6 +273,19 @@ final class AuthManager {
                     _userName = ""
                     _dateOfBirth = 0
                 }
+            } else if let postgrestError = error as? PostgrestError,
+                      postgrestError.code == "PGRST116" {
+                // Profile row missing — sign them out for a clean start
+                try? await supabase.auth.signOut()
+                GIDSignIn.sharedInstance.signOut()
+                
+                await MainActor.run {
+                    withAnimation(.interactiveSpring(response: 0.6, dampingFraction: 0.8)) {
+                        loginStatus = .loggedOut
+                        _userName = ""
+                        _dateOfBirth = 0
+                    }
+                }
             }
         }
     }
@@ -255,6 +293,9 @@ final class AuthManager {
     // MARK: - Session
 
     func logOut() {
+        isLoading = true
+        defer { isLoading = false }
+
         Task {
             try? await supabase.auth.signOut()
             GIDSignIn.sharedInstance.signOut()
@@ -264,8 +305,15 @@ final class AuthManager {
                     loginStatus = .loggedOut
                     self._userName = ""
                     self._dateOfBirth = 0
+                    showConnectHealthProvider = true
                 }
             }
+        }
+    }
+    
+    func showConnectHealthModal(_ status : Bool) {
+        withAnimation(.interactiveSpring(response: 0.6, dampingFraction: 0.8)) {
+            showConnectHealthProvider = status
         }
     }
 }
