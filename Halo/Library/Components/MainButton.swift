@@ -75,13 +75,13 @@ struct MainButtonStyle : ButtonStyle {
             if !isLoading {
                 if let icon {
                     Image(systemName: icon)
-                        .font(.system(size: 16))
+                        .font(.system(size: 20))
                         .foregroundStyle(foregroundColor)
                 }
                 
                 if let image {
                     Image(image)
-                        .resizeImageTo(18)
+                        .resizeImageTo(24)
                 }
                 
                 configuration.label
