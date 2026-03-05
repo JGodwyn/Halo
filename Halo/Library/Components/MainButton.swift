@@ -115,7 +115,7 @@ enum ButtonStates {
         case .primary: return HaloColor.buttonBrandPrimaryRest
         case .secondary: return HaloColor.buttonBrandSecondaryRest
         case .disabled: return HaloColor.buttonBrandPrimaryDisabled
-        case .clear: return Color.clear
+        case .clear: return Color.black.opacity(0.001)
         }
     }
     

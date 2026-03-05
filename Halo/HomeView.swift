@@ -14,7 +14,8 @@ struct HomeView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var items: [Item]
     @State private var startLoggingAttack : Bool = false
-    @State private var showLoggingSheet : Bool = true
+    @State private var showLoggingSheet : Bool = false
+    @State private var changeThis : Bool = false
     
     
     var body: some View {
@@ -23,13 +24,7 @@ struct HomeView: View {
                 firstTimeView
             }
             .noiseBackground()
-            .overlay(alignment: .top) {
-                if auth.showConnectHealthProvider {
-                    ConnectHealthProviderView()
-                        .transition(.move(edge: .top).combined(with: .scale).combined(with: .opacity))
-                }
-            }
-            .toolbar(auth.showConnectHealthProvider ? .hidden : .visible)
+//            .toolbar(auth.showConnectHealthProvider ? .hidden : .visible)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
@@ -57,25 +52,21 @@ struct HomeView: View {
         }
         .overlay {
             if showLoggingSheet {
-                ZStack {
-                    Color.black.opacity(0.8)
-                    
-                    VStack(alignment: .leading, spacing: 24) {
-                        HaloText(text: "Are you experiencing a migraine?", style: .headingMd)
-                        
-                        
-                        MainButton(label: "Close overlay", fillContainer: true) {
-                            showLoggingSheet = false
-                        }
-                    }
-                    .padding(.horizontal, Padding.mgnMobile)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-
-                }
-                .ignoresSafeArea()
+                migraineTypeView
+                    .transition(.blurReplace.combined(with: .scale(1.2, anchor: .center)))
             }
         }
-        .animation(.interactiveSpring(response: 0.6, dampingFraction: 0.8), value: showLoggingSheet)
+        .overlay(alignment: .top) {
+            if auth.showConnectHealthProvider {
+                ConnectHealthProviderView()
+                    .noiseBackground(transitions: true, isPresented: Binding(
+                        get: { auth.showConnectHealthProvider },
+                        set: { auth.showConnectHealthModal($0) }
+                    ))
+                    .transition(.blurReplace.combined(with: .scale(1.2, anchor: .center)))
+            }
+        }
+        .animation(.interactiveSpring(response: 0.6, dampingFraction: 1), value: showLoggingSheet)
     }
     
     var firstTimeView : some View {
@@ -114,6 +105,34 @@ struct HomeView: View {
             MigraineQuestionTemplateView()
         }
     }
+    
+    var migraineTypeView : some View {
+        ZStack {
+            Group {
+                BlurView(style: .systemThinMaterialDark)
+                Color.black.opacity(0.3)
+            }
+            .ignoresSafeArea()
+            
+            VStack(alignment: .leading, spacing: 24) {
+                HaloText(text: "Are you experiencing a migraine?", style: .headingMd)
+                    .padding(.bottom, 8)
+                
+                SelectPill(label: "I think a migraine is coming") { }
+                
+                SelectPill(label: "I am currently having an attack") { }
+                SelectPill(label: "It’s gone but I still feel the effects") { }
+                SelectPill(label: "I think a migraine is coming") { }
+            }
+            .padding(.horizontal, Padding.mgnMobile)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .overlay(alignment: .bottom) {
+            MainButton(state: .clear, label: "Cancel", fillContainer: true) {
+                showLoggingSheet = false
+            }
+        }
+    }
 }
 
 #Preview {
@@ -121,4 +140,17 @@ struct HomeView: View {
         .modelContainer(for: Item.self, inMemory: true)
         .environment(\.font, .custom("LibreCaslonText-Regular", size: 17, relativeTo: .body))
         .environment(AuthManager())
+}
+
+
+struct BlurView: UIViewRepresentable {
+    var style: UIBlurEffect.Style = .systemUltraThinMaterial
+    
+    func makeUIView(context: Context) -> UIVisualEffectView {
+        return UIVisualEffectView(effect: UIBlurEffect(style: style))
+    }
+    
+    func updateUIView(_ uiView: UIVisualEffectView, context: Context) {
+        uiView.effect = UIBlurEffect(style: style)
+    }
 }

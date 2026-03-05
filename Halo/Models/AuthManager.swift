@@ -293,10 +293,10 @@ final class AuthManager {
     // MARK: - Session
 
     func logOut() {
-        isLoading = true
-        defer { isLoading = false }
-
         Task {
+            isLoading = true
+            defer { isLoading = false }
+            
             try? await supabase.auth.signOut()
             GIDSignIn.sharedInstance.signOut()
 
@@ -312,7 +312,7 @@ final class AuthManager {
     }
     
     func showConnectHealthModal(_ status : Bool) {
-        withAnimation(.interactiveSpring(response: 0.6, dampingFraction: 0.8)) {
+        withAnimation(.easeOut) {
             showConnectHealthProvider = status
         }
     }

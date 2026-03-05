@@ -352,7 +352,24 @@ public enum HaloColor {
 
 public struct NoiseBackgroundModifier: ViewModifier {
     
-    let isLight : Bool
+    let isLight: Bool
+    var transitions: Bool
+    @Binding var isPresented: Bool
+    
+    @State private var changeOpacity: Bool = true
+    
+    var shouldTransition: Bool {
+        guard transitions else { return false }
+        return changeOpacity
+    }
+    
+    func dismiss() {
+        changeOpacity = true
+        Task {
+            try? await Task.sleep(for: .seconds(0.3))
+            isPresented = false
+        }
+    }
     
     public func body(content: Content) -> some View {
         content
@@ -362,13 +379,38 @@ public struct NoiseBackgroundModifier: ViewModifier {
                     .resizable(resizingMode: .tile)
                     .blendMode(.multiply)
                     .ignoresSafeArea()
+                    .opacity(shouldTransition ? 0 : 1)
             }
+            .onAppear {
+                changeOpacity = true
+                Task {
+                    try await Task.sleep(for: .seconds(0.3))
+                    changeOpacity = false
+                }
+            }
+            .environment(\.dismissWithNoise, dismiss) // inject dismiss into environment
+            .animation(.smooth, value: changeOpacity)
+    }
+}
+
+private struct DismissWithNoiseKey: EnvironmentKey {
+    static let defaultValue: () -> Void = {}
+}
+
+public extension EnvironmentValues {
+    var dismissWithNoise: () -> Void {
+        get { self[DismissWithNoiseKey.self] }
+        set { self[DismissWithNoiseKey.self] = newValue }
     }
 }
 
 public extension View {
-    func noiseBackground(isLight : Bool = false) -> some View {
-        modifier(NoiseBackgroundModifier(isLight: isLight))
+    func noiseBackground(
+        isLight: Bool = false,
+        transitions: Bool = false,
+        isPresented: Binding<Bool> = .constant(false)
+    ) -> some View {
+        modifier(NoiseBackgroundModifier(isLight: isLight, transitions: transitions, isPresented: isPresented))
     }
 }
 

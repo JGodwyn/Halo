@@ -10,12 +10,9 @@ import SwiftUI
 struct ConnectHealthProviderView: View {
     
     @Environment(AuthManager.self) var auth
+    @Environment(\.dismissWithNoise) var dismissWithNoise
     
     var body: some View {
-        ZStack {
-            
-            Color.clear.noiseBackground()
-            
             ScrollView {
                 VStack(spacing: 24) {
                     Image("FullLogo")
@@ -41,14 +38,13 @@ struct ConnectHealthProviderView: View {
                         }
                         
                         MainButton(state: .secondary, label: "Continue Without Linking", fillContainer: true) {
-                            auth.showConnectHealthModal(false)
+                            dismissWithNoise()
                         }
                     }
                 }
                 .multilineTextAlignment(.center)
             }
             .padding(.horizontal, Padding.mgnMobile)
-        }
     }
 }
 
