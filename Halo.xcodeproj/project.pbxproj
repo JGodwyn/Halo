@@ -137,6 +137,7 @@
 			packageReferences = (
 				DE7ACEC72F51696300745E64 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 				DE7ACECC2F516D2200745E64 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+				DE9C4D1D2F5ACCAD00E4E035 /* XCLocalSwiftPackageReference "../SwiftPackages/swiftui-navigation-transitions" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = DEBDF5032F352C88003FA54E /* Products */;
@@ -378,6 +379,13 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		DE9C4D1D2F5ACCAD00E4E035 /* XCLocalSwiftPackageReference "../SwiftPackages/swiftui-navigation-transitions" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "../SwiftPackages/swiftui-navigation-transitions";
+		};
+/* End XCLocalSwiftPackageReference section */
 
 /* Begin XCRemoteSwiftPackageReference section */
 		DE7ACEC72F51696300745E64 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {

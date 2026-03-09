@@ -15,16 +15,16 @@ struct HomeView: View {
     @Query private var items: [Item]
     @State private var startLoggingAttack : Bool = false
     @State private var showLoggingSheet : Bool = false
-    @State private var changeThis : Bool = false
-    
+    @State private var migraineSituation : MigraineSituations?
+    @State private var moveToMigraineQuestions : Bool = false
     
     var body: some View {
         NavigationStack {
             ZStack {
                 firstTimeView
             }
+            .padding(.horizontal, Padding.mgnMobile)
             .noiseBackground()
-//            .toolbar(auth.showConnectHealthProvider ? .hidden : .visible)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
@@ -66,6 +66,15 @@ struct HomeView: View {
                     .transition(.blurReplace.combined(with: .scale(1.2, anchor: .center)))
             }
         }
+        .overlay {
+            if let situation = migraineSituation {
+                MigraineQuestionTemplateView(migraineSituation: situation) {
+                    withAnimation(.easeOut) {
+                        migraineSituation = nil
+                    }
+                }
+            }
+        }
         .animation(.interactiveSpring(response: 0.6, dampingFraction: 1), value: showLoggingSheet)
     }
     
@@ -98,11 +107,7 @@ struct HomeView: View {
                 }
             }
             .multilineTextAlignment(.center)
-            .padding(.horizontal, Padding.mgnMobile)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-        }
-        .navigationDestination(isPresented: $startLoggingAttack) {
-            MigraineQuestionTemplateView()
         }
     }
     
@@ -118,11 +123,21 @@ struct HomeView: View {
                 HaloText(text: "Are you experiencing a migraine?", style: .headingMd)
                     .padding(.bottom, 8)
                 
-                SelectPill(label: "I think a migraine is coming") { }
+                SelectPill(label: "I think a migraine is coming") {
+                    moveToMigrainQuestions(situation: .incoming)
+                }
                 
-                SelectPill(label: "I am currently having an attack") { }
-                SelectPill(label: "It’s gone but I still feel the effects") { }
-                SelectPill(label: "I think a migraine is coming") { }
+                SelectPill(label: "I am currently having an attack") {
+                    moveToMigrainQuestions(situation: .active)
+                }
+                
+                SelectPill(label: "It’s gone but I still feel the effects") {
+                    moveToMigrainQuestions(situation: .aftermatch)
+                }
+                
+                SelectPill(label: "It’s totally gone") {
+                    moveToMigrainQuestions(situation: .resolved)
+                }
             }
             .padding(.horizontal, Padding.mgnMobile)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -143,14 +158,33 @@ struct HomeView: View {
 }
 
 
-struct BlurView: UIViewRepresentable {
-    var style: UIBlurEffect.Style = .systemUltraThinMaterial
+enum MigraineSituations {
+    case incoming
+    case active
+    case aftermatch
+    case resolved
     
-    func makeUIView(context: Context) -> UIVisualEffectView {
-        return UIVisualEffectView(effect: UIBlurEffect(style: style))
+    var description : String {
+        switch self {
+        case .incoming:
+            return "I think a migraine is coming"
+        case .active:
+            return "I am currently having an attack"
+        case .aftermatch:
+            return "It’s gone but I still feel the effects"
+        case .resolved:
+            return "It’s totally gone"
+        }
     }
-    
-    func updateUIView(_ uiView: UIVisualEffectView, context: Context) {
-        uiView.effect = UIBlurEffect(style: style)
+}
+
+private extension HomeView {
+    func moveToMigrainQuestions (situation : MigraineSituations) {
+        showLoggingSheet = false
+        migraineSituation = situation
+        Task {
+            try? await Task.sleep(for: .seconds(0.2))
+            moveToMigraineQuestions = true
+        }
     }
 }

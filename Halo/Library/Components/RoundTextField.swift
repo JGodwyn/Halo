@@ -31,15 +31,55 @@ struct RoundTextField: View {
     }
 }
 
+struct RoundTextArea: View {
+    
+    var state : TextFieldStates
+    var placeholder : String
+    @Binding var boundTo : String
+    var height : CGFloat
+    var cornerRadius : CGFloat
+    
+    init(state: TextFieldStates = .base(message: ""),
+         placeholder: String = "Enter text here",
+         boundTo: Binding<String>,
+         height: CGFloat = 96,
+         cornerRadius : CGFloat = 24
+    ) {
+        self.state = state
+        self.placeholder = placeholder
+        self._boundTo = boundTo
+        self.height = height
+        self.cornerRadius = cornerRadius
+    }
+    
+    var body: some View {
+        TextEditor(text: $boundTo)
+            .padding(.vertical, 8)
+            .padding(.horizontal, -4)
+            .scrollContentBackground(.hidden)
+            .disabled(state.isDisabled)
+            .customRoundedTextField(state: state, height: height, cornerRadius: cornerRadius)
+            .overlay(alignment: .topLeading) {
+                if boundTo.isEmpty {
+                    HaloText(text: placeholder, color: HaloColor.textSubtle)
+                        .padding()
+                }
+            }
+    }
+}
+
+
 #Preview {
     ZStack {
         Color.clear.noiseBackground()
         VStack(spacing: 24) {
-            RoundTextField(state: .disabled(message: "This is helper text") ,boundTo: .constant(""))
+            RoundTextField(state: .error(message: "This is helper text") ,boundTo: .constant(""))
             
             RoundTextField(state: .base(message: "This is helper text") ,boundTo: .constant(""))
             
             RoundTextField(state: .base(message: "This is helper text") ,boundTo: .constant(""))
+            
+            RoundTextArea(state: .base(message: "This is helper text") ,boundTo: .constant(""))
             
             MainButton(label: "Remove focus") {}
             
@@ -70,10 +110,6 @@ struct CustomRoundedTextField : ViewModifier {
                 return state
             }
             
-            if isFocused {
-                return .focused(message: "")
-            }
-            
             return state
             
         }
@@ -87,6 +123,7 @@ struct CustomRoundedTextField : ViewModifier {
                 .overlay {
                     RoundedRectangle(cornerRadius: cornerRadius)
                         .strokeBorder(effectiveState.strokeColor, lineWidth: strokeWidth)
+                        .strokeBorder(isFocused ? BrandColor.Powder.powder200 : .clear, lineWidth: strokeWidth)
                     
                     if showShadow {
                         RoundedRectangle(cornerRadius: cornerRadius)
@@ -109,19 +146,21 @@ struct CustomRoundedTextField : ViewModifier {
                     }
                     
                 }
+            
             if !effectiveState.helperText.isEmpty {
                 Text(effectiveState.helperText)
                     .foregroundStyle(effectiveState.helperTextColor)
+                    .transition(.blurReplace)
             }
         }
         .animation(.easeInOut(duration: 0.3), value: state)
         .animation(.easeInOut(duration: 0.3), value: effectiveState)
+        .animation(.easeInOut(duration: 0.1), value: isFocused)
     }
 }
 
 enum TextFieldStates : Equatable {
     case base(message : String)
-    case focused(message : String)
     case error(message : String)
     case success(message : String)
     case disabled(message : String)
@@ -134,8 +173,6 @@ enum TextFieldStates : Equatable {
             return "error"
         case .success:
             return "success"
-        case .focused:
-            return "focused"
         case .disabled:
             return "disabled"
         }
@@ -143,7 +180,7 @@ enum TextFieldStates : Equatable {
     
     var isDisabled: Bool {
         switch self {
-        case .base, .focused, .error, .success:
+        case .base, .error, .success:
             return false
         case .disabled:
             return true
@@ -158,8 +195,6 @@ enum TextFieldStates : Equatable {
             return .red.opacity(0.1)
         case .success:
             return .green.opacity(0.1)
-        case .focused:
-            return HaloColor.textInputSurfaceRest
         case .disabled:
             return BrandColor.Gray.gray100
         }
@@ -173,8 +208,6 @@ enum TextFieldStates : Equatable {
             return .red
         case .success:
             return .green
-        case .focused:
-            return BrandColor.Powder.powder200
         case .disabled:
             return BrandColor.Gray.gray200
         }
@@ -187,8 +220,6 @@ enum TextFieldStates : Equatable {
         case .error(let message):
             return message
         case .success(let message):
-            return message
-        case .focused(let message):
             return message
         case .disabled(let message):
             return message
@@ -203,8 +234,6 @@ enum TextFieldStates : Equatable {
             return .red
         case .success:
             return Color(hex: "00A600")
-        case .focused:
-            return HaloColor.textSubtle
         case .disabled:
             return HaloColor.textSubtle
         }
@@ -218,15 +247,11 @@ enum TextFieldStates : Equatable {
             return "exclamationmark.octagon.fill"
         case .success:
             return "checkmark"
-        case .focused:
-            return nil
         case .disabled:
             return nil
         }
     }
 }
-
-
 
 extension View {
     func customRoundedTextField(

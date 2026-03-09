@@ -8,21 +8,54 @@
 import SwiftUI
 
 struct MigraineQuestionTemplateView: View {
+    
+    let migraineSituation : MigraineSituations
+    let tappedCancel : () -> Void
+    @State private var allowSwipe = true
+    
+    
     var body: some View {
         // this is just a template to hold other view
+        // - But depending on your selection, the screens change.
+        // - The screens can be held in an array.
         ZStack {
             Color.clear.noiseBackground()
-            TabView {
-                MigraineTypeView()
-                MigraineCauseView()
+            
+            VStack(alignment: .leading, spacing: 24) {
+                HStack {
+                    Button {
+                        tappedCancel()
+                    } label: {
+                        Image(systemName: "arrow.turn.up.left")
+                            .padding(.horizontal, 4)
+                            .padding(.vertical, 8)
+                    }
+                    .buttonStyle(.glass)
+                    
+                    Spacer()
+                    HaloText(text: "Skip this", color: HaloColor.textSubtle)
+                }
+                .padding(.horizontal, Padding.mgnMobile)
+                
+                TabView {
+                    MCauseView()
+                        .gesture(allowSwipe ? nil : DragGesture())
+                    
+                    MAuraPresentView()
+                    
+                    MainButton(label: "Cancel") {
+                        tappedCancel()
+                    }
+                }
+                .tabViewStyle(.page(indexDisplayMode: .never))
             }
-            .tabViewStyle(.page)
+            .ignoresSafeArea(edges: .bottom)
         }
     }
 }
 
 #Preview {
-    MigraineQuestionTemplateView()
+    MigraineQuestionTemplateView(migraineSituation: .active) {}
         .environment(AuthManager())
         .environment(\.font, .custom("LibreCaslonText-Regular", size: 17, relativeTo: .body))
         .preferredColorScheme(.dark)
