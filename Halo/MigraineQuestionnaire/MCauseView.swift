@@ -10,9 +10,11 @@ import SwiftData
 
 struct MCauseView: View {
     
-    @State private var shouldToggleThisPill: Bool = false
     @State private var causes : Set<String> = [] // what goes to the model
-    @State private var writeSomethingElse : String = ""
+    
+    @Binding var mainCauses : [String] // what goes to the model
+    @Binding var writeSomethingElse : String
+    let tappedContinue : () -> Void
     
     
     var body: some View {
@@ -25,16 +27,32 @@ struct MCauseView: View {
                 .padding(.bottom, 24)
                 
                 ForEach(PainCause.allCases, id: \.self) { cause in
-                    SelectPill(label: cause.label, toggleable: true, active: causes.contains(cause.rawValue)) {
-                        modifyCauses(cause.rawValue)
+                    
+                    if cause.rawValue == "other" {
+                        SelectPill(label: cause.label, toggleable: true, active: causes.contains(cause.rawValue)) {
+                            modifyCauses(cause.rawValue)
+                        }
+                    } else if cause.rawValue == "unknown"{
+                        SelectPill(label: cause.label, toggleable: true, active: causes.contains(cause.rawValue)) {
+                            popAllExceptMe(cause.rawValue)
+                        }
+                    } else {
+                        SelectPill(label: cause.label, toggleable: true, active: causes.contains(cause.rawValue)) {
+                            modifyCauses(cause.rawValue)
+                        }
                     }
                 }
                 
-                RoundTextField(boundTo: $writeSomethingElse)
-                RoundTextArea(state: .base(message: "This is helping you"), boundTo: $writeSomethingElse)
+                if causes.contains("other") {
+                    RoundTextArea(placeholder: "Write it here", boundTo: $writeSomethingElse)
+                        .transition(.blurReplace)
+                }
                 
-                MainButton(label: "Continue", fillContainer: true) {
-                    
+                // when i click this button
+                // pass the array to the parent struct
+                MainButton(state: isValid ? .primary : .disabled, label: "Continue", fillContainer: true) {
+                    mainCauses = causes.sorted()
+                    tappedContinue()
                 }
                 .padding(.top, 24)
             }
@@ -42,19 +60,48 @@ struct MCauseView: View {
         }
         .padding(.horizontal, Padding.mgnMobile)
         .scrollIndicators(.hidden)
+        .animation(.easeInOut, value: causes)
+        .animation(.easeInOut(duration: 0.2), value: writeSomethingElse)
+        .onAppear {
+            mainCauses = causes.sorted()
+        }
+        .onChange(of: causes) { _, _ in
+            mainCauses = causes.sorted()
+        }
     }
     
     private func modifyCauses(_ item: String) {
+        causes.remove("unknown")
         if causes.contains(item) {
             causes.remove(item)
         } else {
             causes.insert(item)
         }
     }
+    
+    private func popAllExceptMe(_ item: String) {
+        if causes.contains(item) {
+            causes.remove(item)
+        } else {
+            causes = [item]
+        }
+    }
+    
+    private var isValid : Bool {
+        guard causes.isEmpty == false else {
+            return false
+        }
+        
+        if causes.contains("other") && writeSomethingElse.isEmpty {
+            return false
+        }
+        
+        return true
+    }
 }
 
 #Preview {
-    MCauseView()
+    MCauseView(mainCauses: .constant([]), writeSomethingElse: .constant("")) { }
         .environment(AuthManager())
         .environment(\.font, .custom("LibreCaslonText-Regular", size: 17, relativeTo: .body))
         .preferredColorScheme(.dark)

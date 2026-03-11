@@ -68,7 +68,7 @@ struct HomeView: View {
         }
         .overlay {
             if let situation = migraineSituation {
-                MigraineQuestionTemplateView(migraineSituation: situation) {
+                MigraineQuestionTemplateView(migraineSituation: situation, totalTabs: situation.numberOfTabs) {
                     withAnimation(.easeOut) {
                         migraineSituation = nil
                     }
@@ -132,7 +132,7 @@ struct HomeView: View {
                 }
                 
                 SelectPill(label: "It’s gone but I still feel the effects") {
-                    moveToMigrainQuestions(situation: .aftermatch)
+                    moveToMigrainQuestions(situation: .aftermath)
                 }
                 
                 SelectPill(label: "It’s totally gone") {
@@ -161,7 +161,7 @@ struct HomeView: View {
 enum MigraineSituations {
     case incoming
     case active
-    case aftermatch
+    case aftermath
     case resolved
     
     var description : String {
@@ -170,10 +170,23 @@ enum MigraineSituations {
             return "I think a migraine is coming"
         case .active:
             return "I am currently having an attack"
-        case .aftermatch:
+        case .aftermath:
             return "It’s gone but I still feel the effects"
         case .resolved:
             return "It’s totally gone"
+        }
+    }
+    
+    var numberOfTabs : Int {
+        switch self {
+        case .incoming:
+            return 2
+        case .active:
+            return 2
+        case .aftermath:
+            return 8
+        case .resolved:
+            return 8
         }
     }
 }

@@ -15,6 +15,7 @@ enum MigraineType: String, Codable, CaseIterable {
     case active         = "active"
     case aftermath      = "aftermath"
     case resolved       = "resolved"
+    case didNotOccur    = "did_not_occur"
 
     var label: String {
         switch self {
@@ -22,6 +23,7 @@ enum MigraineType: String, Codable, CaseIterable {
         case .active:     "I am currently having an attack"
         case .aftermath:  "It's gone but I still feel the after effects"
         case .resolved:   "It's totally gone"
+        case .didNotOccur: "It didn't happen after all"
         }
     }
 }
@@ -173,5 +175,50 @@ final class MigraineEpisode {
     var medicationHelpedEnum: MedicationHelped? {
         get { medicationHelped.flatMap { MedicationHelped(rawValue: $0) } }
         set { medicationHelped = newValue?.rawValue }
+    }
+}
+
+
+// hold the migraine fields as the user goes through the flow
+
+struct MigraineEpisodeDraft {
+    var note: String = ""
+    var migraineType: MigraineType? = nil
+    var date: Date = Date()
+    var time: Date = Date()
+    var durationHours: Int? = nil
+    var durationMinutes: Int? = nil
+    var durationSeconds: Int? = nil
+    var aura: AuraStatus? = nil
+    var painIntensity: PainIntensity? = nil
+    var painCauses: [String] = []
+    var customCause: String = ""
+    var painLocations: [String] = []
+    var medicationTaken: Bool? = nil
+    var medicationTakenNote: String = ""
+    var medicationHelped: MedicationHelped? = nil
+    var medicationHelpedNote: String = ""
+
+    // Converts the draft into a real SwiftData model
+    func commit(to context: ModelContext, userId: String) -> MigraineEpisode {
+        let episode = MigraineEpisode(userId: userId)
+        episode.note                 = note.isEmpty ? nil : note
+        episode.migraineTypeEnum     = migraineType
+        episode.date                 = date
+        episode.time                 = time
+        episode.durationHours        = durationHours
+        episode.durationMinutes      = durationMinutes
+        episode.durationSeconds      = durationSeconds
+        episode.auraEnum             = aura
+        episode.painIntensityEnum    = painIntensity
+        episode.painCauses           = painCauses
+        episode.customCause          = painCauses.contains("other") ? customCause : nil
+        episode.painLocations        = painLocations
+        episode.medicationTaken      = medicationTaken
+        episode.medicationTakenNote  = medicationTakenNote.isEmpty ? nil : medicationTakenNote
+        episode.medicationHelpedEnum = medicationHelped
+        episode.medicationHelpedNote = medicationHelpedNote.isEmpty ? nil : medicationHelpedNote
+        context.insert(episode)
+        return episode
     }
 }

@@ -8,6 +8,10 @@
 import SwiftUI
 
 struct MAuraPresentView: View {
+    
+    @Binding var auraStatus : AuraStatus?
+    let tappedOption : () -> Void
+    
     var body: some View {
         VStack(alignment: .leading) {
             VStack(alignment: .leading,  spacing: 16) {
@@ -17,9 +21,12 @@ struct MAuraPresentView: View {
             .padding(.bottom, 24)
             .frame(maxWidth: .infinity, alignment: .leading)
             
-            SelectPill(label: "Yes, the aura is present", toggleable: true) { }
-            SelectPill(label: "No, there’s no aura", toggleable: true) { }
-            SelectPill(label: "I can’t tell for now", toggleable: true) { }
+            ForEach(AuraStatus.allCases, id: \.self) { cause in
+                SelectPill(label: cause.label, toggleable: true, active: auraStatus == cause) {
+                    auraStatus = cause
+                    tappedOption()
+                }
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(Padding.mgnMobile)
@@ -27,7 +34,7 @@ struct MAuraPresentView: View {
 }
 
 #Preview {
-    MAuraPresentView()
+    MAuraPresentView(auraStatus: .constant(.unsure)) {}
         .environment(AuthManager())
         .environment(\.font, .custom("LibreCaslonText-Regular", size: 17, relativeTo: .body))
         .preferredColorScheme(.dark)
