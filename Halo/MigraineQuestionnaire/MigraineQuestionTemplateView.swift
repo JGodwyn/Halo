@@ -34,11 +34,15 @@ struct MigraineQuestionTemplateView: View {
             VStack(alignment: .leading, spacing: 24) {
                 HStack {
                     Button {
-                        tappedCancel()
+                        if currentTab == 0 {
+                            tappedCancel()
+                        } else {
+                            movePrevTab()
+                        }
                     } label: {
-                        Image(systemName: "arrow.turn.up.left")
-                            .padding(.horizontal, 4)
-                            .padding(.vertical, 8)
+                        Image(systemName: currentTab == 0 ? "xmark" : "arrow.turn.up.left")
+                                .padding(.horizontal, 4)
+                                .frame(height: 32)
                     }
                     .buttonStyle(.glass)
                     
