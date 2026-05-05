@@ -75,7 +75,7 @@ struct HomeView: View {
                 }
             }
         }
-        .animation(.interactiveSpring(response: 0.6, dampingFraction: 1), value: showLoggingSheet)
+        .animation(.easeOut(duration: 0.3), value: showLoggingSheet)
     }
     
     var firstTimeView : some View {

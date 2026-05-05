@@ -27,8 +27,10 @@ struct MConfirmationView: View {
             }
                 
             MainButton(state: .secondary, label: "Okay", fillContainer: true) {
-                dismissWithNoise()
-                tappedButton()
+//                dismissWithNoise() // dismisses the view
+                withAnimation(.easeOut(duration: 0.5)) {
+                    tappedButton()
+                }
             }
         }
         .multilineTextAlignment(.center)

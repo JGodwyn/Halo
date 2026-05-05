@@ -24,7 +24,9 @@ struct MAuraPresentView: View {
             ForEach(AuraStatus.allCases, id: \.self) { cause in
                 SelectPill(label: cause.label, toggleable: true, active: auraStatus == cause) {
                     auraStatus = cause
-                    tappedOption()
+                    withAnimation(.easeOut(duration: 0.5)) {
+                        tappedOption()
+                    }
                 }
             }
         }

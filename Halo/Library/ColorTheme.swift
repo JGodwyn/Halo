@@ -364,22 +364,25 @@ public struct NoiseBackgroundModifier: ViewModifier {
     }
     
     func dismiss() {
-        changeOpacity = true
-        Task {
-            try? await Task.sleep(for: .seconds(0.3))
+//        changeOpacity = true
+//        Task {
+//            try? await Task.sleep(for: .seconds(0.3))
             isPresented = false
-        }
+//        }
     }
     
     public func body(content: Content) -> some View {
         content
             .background {
-                isLight ? HaloColor.surface1.ignoresSafeArea() : HaloColor.surface2.ignoresSafeArea()
-                Image("NoiseBg")
-                    .resizable(resizingMode: .tile)
-                    .blendMode(.multiply)
-                    .ignoresSafeArea()
-                    .opacity(shouldTransition ? 0 : 1)
+                ZStack {
+                    isLight ? HaloColor.surface1 : HaloColor.surface2
+                    Image("NoiseBg")
+                        .resizable(resizingMode: .tile)
+                        .blendMode(.multiply)
+                        .opacity(shouldTransition ? 0 : 1)
+                }
+                .compositingGroup()
+                .ignoresSafeArea()
             }
             .environment(\.dismissWithNoise, dismiss) // inject dismiss into environment
             .animation(.smooth, value: changeOpacity)
