@@ -9,6 +9,7 @@ import SwiftUI
 
 struct MigraineQuestionTemplateView: View {
     
+    @Environment(\.dismissWithNoise) var dismissWithNoise
     let migraineSituation : MigraineSituations
     let totalTabs : Int
     @State private var currentTab = 0
@@ -34,7 +35,7 @@ struct MigraineQuestionTemplateView: View {
             VStack(alignment: .leading, spacing: 24) {
                 HStack {
                     Button {
-                        if currentTab == 0 {
+                        if isFirstTab {
                             tappedCancel()
                         } else {
                             movePrevTab()
@@ -55,9 +56,16 @@ struct MigraineQuestionTemplateView: View {
                     Spacer()
                     
                     Button {
-                        moveNextTab()
+                        if isLastTab {
+                            withAnimation(.interactiveSpring(response: 0.6, dampingFraction: 1)) {
+                                EndLogging = true
+                            }
+                        } else {
+                            moveNextTab()
+                        }
                     } label: {
-                        HaloText(text: "Skip", color: HaloColor.textSubtle)
+                        HaloText(text: isLastTab ? "Submit" : "Skip", color: HaloColor.textSubtle)
+                            .frame(width: 64)
                     }
                 }
                 .padding(.horizontal, Padding.mgnMobile)
@@ -72,10 +80,16 @@ struct MigraineQuestionTemplateView: View {
         .animation(.smooth, value: currentTab)
         .overlay {
             if EndLogging {
-                MConfirmationView(header: "Got it", description: "I am describing something here") {
-                    EndLogging = false
+                MConfirmationView(header: migraineSituation.loggingConfirmationHeader, description: migraineSituation.loggingConfirmationDescription) {
+
                 }
-                .transition(.blurReplace)
+                .noiseBackground(transitions: true, isPresented: $EndLogging)
+                .transition(.blurReplace.combined(with: .scale(1.2, anchor: .center)))
+            }
+        }
+        .onChange(of: EndLogging) { oldValue, newValue in
+            if oldValue == true && newValue == false {
+                tappedCancel()
             }
         }
     }
@@ -117,10 +131,17 @@ struct MigraineQuestionTemplateView: View {
 
 extension MigraineQuestionTemplateView {
     func moveNextTab() {
-        currentTab = min(totalTabs - 1, currentTab + 1)
+        if EndOfFlow {
+            EndLogging = true
+        } else {
+            currentTab = min(totalTabs - 1, currentTab + 1)
+        }
     }
     
     func movePrevTab() {
         currentTab = max(0, currentTab - 1)
     }
+    
+    var isLastTab: Bool { currentTab == totalTabs - 1 }
+    var isFirstTab: Bool { currentTab == 0 }
 }

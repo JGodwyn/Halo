@@ -9,32 +9,31 @@ import SwiftUI
 
 struct MConfirmationView: View {
     
+    @Environment(\.dismissWithNoise) var dismissWithNoise
     let header : String
     let description : String
     let tappedButton : () -> Void
     
     var body: some View {
-        ZStack {
-            Color.clear.noiseBackground()
-            VStack(alignment: .center, spacing: 32) {
-                Image("ThumbsUp")
-                    .resizeImageTo(320)
-                    .padding(.vertical, -40)
+        VStack(alignment: .center, spacing: 32) {
+            Image("ThumbsUp")
+                .resizeImageTo(320)
+                .padding(.vertical, -40)
+            
+            VStack (spacing: 16) {
+                HaloText(text: header, style: .headingLg)
                 
-                VStack (spacing: 16) {
-                    HaloText(text: header, style: .headingLg)
-                    
-                    HaloText(text: description, style: .bodyLg, color: HaloColor.textSubtle)
-                }
-                    
-                    MainButton(state: .secondary, label: "Okay", fillContainer: true) {
-                        tappedButton()
-                    }
+                HaloText(text: description, style: .bodyLg, color: HaloColor.textSubtle)
             }
-            .multilineTextAlignment(.center)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-            .padding(.horizontal, Padding.mgnMobile)
+                
+            MainButton(state: .secondary, label: "Okay", fillContainer: true) {
+                dismissWithNoise()
+                tappedButton()
+            }
         }
+        .multilineTextAlignment(.center)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        .padding(.horizontal, Padding.mgnMobile)
     }
 }
 

@@ -189,6 +189,32 @@ enum MigraineSituations {
             return 8
         }
     }
+    
+    var loggingConfirmationHeader : String {
+        switch self {
+            case .incoming:
+                return "Got it"
+            case .active:
+                return "Get some rest"
+            case .aftermath:
+                return "Take your time"
+            case .resolved:
+                return "Logged!"
+        }
+    }
+    
+    var loggingConfirmationDescription : String {
+        switch self {
+            case .incoming:
+                return "We’ve saved your log. You’ll get a reminder in 30 minutes to see how you’re feeling."
+            case .active:
+                return "That’s enough for now. You can fill the other information later."
+            case .aftermath:
+                return "Post-migraine hangovers are real. You can stop here and come back later if you want."
+            case .resolved:
+                return "Thanks for checking in."
+        }
+    }
 }
 
 private extension HomeView {

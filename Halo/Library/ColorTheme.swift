@@ -356,7 +356,7 @@ public struct NoiseBackgroundModifier: ViewModifier {
     var transitions: Bool
     @Binding var isPresented: Bool
     
-    @State private var changeOpacity: Bool = true
+    @State private var changeOpacity: Bool = false
     
     var shouldTransition: Bool {
         guard transitions else { return false }
@@ -380,13 +380,6 @@ public struct NoiseBackgroundModifier: ViewModifier {
                     .blendMode(.multiply)
                     .ignoresSafeArea()
                     .opacity(shouldTransition ? 0 : 1)
-            }
-            .onAppear {
-                changeOpacity = true
-                Task {
-                    try await Task.sleep(for: .seconds(0.3))
-                    changeOpacity = false
-                }
             }
             .environment(\.dismissWithNoise, dismiss) // inject dismiss into environment
             .animation(.smooth, value: changeOpacity)
