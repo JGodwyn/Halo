@@ -158,65 +158,6 @@ struct HomeView: View {
 }
 
 
-enum MigraineSituations {
-    case incoming
-    case active
-    case aftermath
-    case resolved
-    
-    var description : String {
-        switch self {
-        case .incoming:
-            return "I think a migraine is coming"
-        case .active:
-            return "I am currently having an attack"
-        case .aftermath:
-            return "It’s gone but I still feel the effects"
-        case .resolved:
-            return "It’s totally gone"
-        }
-    }
-    
-    var numberOfTabs : Int {
-        switch self {
-        case .incoming:
-            return 2
-        case .active:
-            return 2
-        case .aftermath:
-            return 8
-        case .resolved:
-            return 8
-        }
-    }
-    
-    var loggingConfirmationHeader : String {
-        switch self {
-            case .incoming:
-                return "Got it"
-            case .active:
-                return "Get some rest"
-            case .aftermath:
-                return "Take your time"
-            case .resolved:
-                return "Logged!"
-        }
-    }
-    
-    var loggingConfirmationDescription : String {
-        switch self {
-            case .incoming:
-                return "We’ve saved your log. You’ll get a reminder in 30 minutes to see how you’re feeling."
-            case .active:
-                return "That’s enough for now. You can fill the other information later."
-            case .aftermath:
-                return "Post-migraine hangovers are real. You can stop here and come back later if you want."
-            case .resolved:
-                return "Thanks for checking in."
-        }
-    }
-}
-
 private extension HomeView {
     func moveToMigrainQuestions (situation : MigraineSituations) {
         showLoggingSheet = false

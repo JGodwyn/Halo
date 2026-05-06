@@ -64,7 +64,7 @@ struct MigraineQuestionTemplateView: View {
         .animation(.easeOut(duration: 0.3), value: currentTab)
         .overlay {
             if EndLogging {
-                MConfirmationView(header: migraineSituation.loggingConfirmationHeader, description: migraineSituation.loggingConfirmationDescription) {
+                MConfirmationView(header: migraineSituation.loggingConfirmationHeader, description: migraineSituation.loggingConfirmationDescription, image: migraineSituation.loggingConfirmationImage) {
                     withAnimation(.easeOut(duration: 0.3)) {
                         tappedCancel()
                     }
@@ -86,7 +86,15 @@ struct MigraineQuestionTemplateView: View {
     func ScreensToShow (situation : MigraineSituations) -> some View {
         switch situation {
         case .active:
-            EmptyView()
+            MAuraPresentView(auraStatus: $migraineDraft.aura) {
+                moveNextTab()
+            }
+            .tag(0)
+            
+            MIntensityView(painIntensity: $migraineDraft.painIntensity) {
+                moveNextTab()
+            }
+            .tag(1)
             
         case .incoming:
             MCauseView(mainCauses: $migraineDraft.painCauses ,writeSomethingElse: $migraineDraft.customCause) {
@@ -101,7 +109,9 @@ struct MigraineQuestionTemplateView: View {
             .tag(1)
             
         case .aftermath:
-            EmptyView()
+            MTakeYourTimeView() {
+                
+            }
             
         case .resolved:
             EmptyView()
@@ -110,7 +120,7 @@ struct MigraineQuestionTemplateView: View {
 }
 
 #Preview {
-    MigraineQuestionTemplateView(migraineSituation: .incoming, totalTabs: MigraineSituations.incoming.numberOfTabs) {}
+    MigraineQuestionTemplateView(migraineSituation: .aftermath, totalTabs: MigraineSituations.incoming.numberOfTabs) {}
         .environment(AuthManager())
         .environment(\.font, .custom("LibreCaslonText-Regular", size: 17, relativeTo: .body))
         .preferredColorScheme(.dark)

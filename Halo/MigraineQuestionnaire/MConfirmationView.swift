@@ -9,14 +9,14 @@ import SwiftUI
 
 struct MConfirmationView: View {
     
-    @Environment(\.dismissWithNoise) var dismissWithNoise
     let header : String
     let description : String
+    let image : String
     let tappedButton : () -> Void
     
     var body: some View {
         VStack(alignment: .center, spacing: 32) {
-            Image("ThumbsUp")
+            Image(image)
                 .resizeImageTo(320)
                 .padding(.vertical, -40)
             
@@ -27,7 +27,6 @@ struct MConfirmationView: View {
             }
                 
             MainButton(state: .secondary, label: "Okay", fillContainer: true) {
-//                dismissWithNoise() // dismisses the view
                 withAnimation(.easeOut(duration: 0.5)) {
                     tappedButton()
                 }
@@ -40,7 +39,7 @@ struct MConfirmationView: View {
 }
 
 #Preview {
-    MConfirmationView(header: "Got it", description: "We’ve saved your log. You’ll get a reminder in 30 minutes to see how you’re feeling.") {}
+    MConfirmationView(header: "Got it", description: "We’ve saved your log. You’ll get a reminder in 30 minutes to see how you’re feeling.", image: "ThumbsUp") {}
         .environment(AuthManager())
         .environment(\.font, .custom("LibreCaslonText-Regular", size: 17, relativeTo: .body))
         .preferredColorScheme(.dark)

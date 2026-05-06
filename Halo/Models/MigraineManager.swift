@@ -10,6 +10,80 @@ import SwiftData
 
 // MARK: - Enums
 
+enum MigraineSituations {
+    // for displaying the migraine. Note that there's no 'didnotoccur' here
+    // that's cos a state has to be incoming before it is 'didnotoccur'
+    case incoming
+    case active
+    case aftermath
+    case resolved
+    
+    var description : String {
+        switch self {
+        case .incoming:
+            return "I think a migraine is coming"
+        case .active:
+            return "I am currently having an attack"
+        case .aftermath:
+            return "It’s gone but I still feel the effects"
+        case .resolved:
+            return "It’s totally gone"
+        }
+    }
+    
+    var numberOfTabs : Int {
+        switch self {
+        case .incoming:
+            return 2
+        case .active:
+            return 2
+        case .aftermath:
+            return 8
+        case .resolved:
+            return 8
+        }
+    }
+    
+    var loggingConfirmationImage : String {
+        switch self {
+            case .incoming:
+                return "ThumbsUp"
+            case .active:
+                return "EtherealFlame"
+            case .aftermath:
+                return "EtherealFlame"
+            case .resolved:
+                return "ThumbsUp"
+        }
+    }
+    
+    var loggingConfirmationHeader : String {
+        switch self {
+            case .incoming:
+                return "Got it"
+            case .active:
+                return "Get some rest"
+            case .aftermath:
+                return "Take your time"
+            case .resolved:
+                return "Logged!"
+        }
+    }
+    
+    var loggingConfirmationDescription : String {
+        switch self {
+            case .incoming:
+                return "We’ve saved your log. You’ll get a reminder in 30 minutes to see how you’re feeling."
+            case .active:
+                return "That’s enough for now. You can fill the other information later."
+            case .aftermath:
+                return "Post-migraine hangovers are real. You can stop here and come back later if you want."
+            case .resolved:
+                return "Thanks for checking in."
+        }
+    }
+}
+
 enum MigraineType: String, Codable, CaseIterable {
     case incoming       = "incoming"
     case active         = "active"
