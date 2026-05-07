@@ -109,9 +109,20 @@ struct MigraineQuestionTemplateView: View {
             .tag(1)
             
         case .aftermath:
-            MTakeYourTimeView() {
-                
+            MAuraPresentView(auraStatus: $migraineDraft.aura) {
+                moveNextTab()
             }
+            .tag(0)
+            
+            MIntensityView(painIntensity: $migraineDraft.painIntensity) {
+                moveNextTab()
+            }
+            .tag(1)
+            
+            MCauseView(mainCauses: $migraineDraft.painCauses ,writeSomethingElse: $migraineDraft.customCause) {
+                moveNextTab()
+            }
+            .tag(2)
             
         case .resolved:
             EmptyView()

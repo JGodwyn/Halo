@@ -17,6 +17,7 @@ struct HomeView: View {
     @State private var showLoggingSheet : Bool = false
     @State private var migraineSituation : MigraineSituations?
     @State private var moveToMigraineQuestions : Bool = false
+    @State private var startAftermathFlow : Bool = false
     
     var body: some View {
         NavigationStack {
@@ -71,6 +72,15 @@ struct HomeView: View {
                 MigraineQuestionTemplateView(migraineSituation: situation, totalTabs: situation.numberOfTabs) {
                     withAnimation(.easeOut) {
                         migraineSituation = nil
+                    }
+                }
+            }
+        }
+        .overlay {
+            if startAftermathFlow {
+                MTakeYourTimeView {
+                    withAnimation(.easeOut(duration: 0.3)){
+                        startAftermathFlow = false
                     }
                 }
             }
@@ -132,7 +142,12 @@ struct HomeView: View {
                 }
                 
                 SelectPill(label: "It’s gone but I still feel the effects") {
-                    moveToMigrainQuestions(situation: .aftermath)
+                    // just open the confirmation view
+                    // inside it will open the questionnaire'
+                    withAnimation(.easeOut(duration: 0.3)){
+                        startAftermathFlow = true
+                        moveToMigrainQuestions(situation: .aftermath)
+                    }
                 }
                 
                 SelectPill(label: "It’s totally gone") {

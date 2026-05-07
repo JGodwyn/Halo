@@ -172,6 +172,19 @@ enum PainLocation: String, Codable, CaseIterable {
         case .unknown:        "I don't remember"
         }
     }
+    
+    var image: String {
+        switch self {
+        case .forehead:       "Forehead"
+        case .temple:         "Temple"
+        case .behindEyes:     "BehindEyes"
+        case .topOfHead:      "TopOfTheHead"
+        case .backOfHeadNeck: "BackOfHeadNeck"
+        case .sinusesJaws:    "SinusesJaws"
+        case .entireHead:     "EntireHeadScalp"
+        case .unknown:        "IDontRemember"
+        }
+    }
 }
 
 enum MedicationHelped: String, Codable, CaseIterable {
