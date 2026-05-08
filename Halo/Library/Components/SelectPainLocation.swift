@@ -45,7 +45,6 @@ struct SelectPainLocation: View {
                             endPoint: .bottomLeading
                         )
                     }
-//                    .resizeImageTo(40)
             }
             .frame(width: width, height: 200)
             .background {
@@ -56,11 +55,11 @@ struct SelectPainLocation: View {
                             BrandColor.Lavender.lavender400.opacity(0.5),
                             BrandColor.Lavender.lavender400.opacity(0.15),
                             BrandColor.Lavender.lavender400.opacity(0)
-
                         ]),
                         startPoint: .top,
                         endPoint: .bottom
                     )
+                    .animation(.interactiveSpring(response: 0.4, dampingFraction: 0.6), value: active)
                 }
             }
             .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
@@ -84,7 +83,6 @@ struct SelectPainLocation: View {
                         .transition(.scale)
                 }
             }
-            .animation(.interactiveSpring(response: 0.4, dampingFraction: 0.6), value: active)
         }
     }
 }

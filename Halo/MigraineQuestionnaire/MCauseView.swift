@@ -60,8 +60,6 @@ struct MCauseView: View {
         }
         .padding(.horizontal, Padding.mgnMobile)
         .scrollIndicators(.hidden)
-        .animation(.easeInOut, value: causes)
-        .animation(.easeInOut(duration: 0.2), value: writeSomethingElse)
         .onAppear {
             mainCauses = causes.sorted()
         }
@@ -71,19 +69,23 @@ struct MCauseView: View {
     }
     
     private func modifyCauses(_ item: String) {
-        causes.remove("unknown")
-        if causes.contains(item) {
-            causes.remove(item)
-        } else {
-            causes.insert(item)
+        withAnimation(.easeInOut) {
+            causes.remove("unknown")
+            if causes.contains(item) {
+                causes.remove(item)
+            } else {
+                causes.insert(item)
+            }
         }
     }
     
     private func popAllExceptMe(_ item: String) {
-        if causes.contains(item) {
-            causes.remove(item)
-        } else {
-            causes = [item]
+        withAnimation(.easeInOut) {
+            if causes.contains(item) {
+                causes.remove(item)
+            } else {
+                causes = [item]
+            }
         }
     }
     

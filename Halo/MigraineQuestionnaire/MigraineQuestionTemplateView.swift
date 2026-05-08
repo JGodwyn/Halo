@@ -61,7 +61,6 @@ struct MigraineQuestionTemplateView: View {
             }
             .ignoresSafeArea(edges: .bottom)
         }
-        .animation(.easeOut(duration: 0.3), value: currentTab)
         .overlay {
             if EndLogging {
                 MConfirmationView(header: migraineSituation.loggingConfirmationHeader, description: migraineSituation.loggingConfirmationDescription, image: migraineSituation.loggingConfirmationImage) {
@@ -124,6 +123,11 @@ struct MigraineQuestionTemplateView: View {
             }
             .tag(2)
             
+            MPainLocationView(mainLocations: $migraineDraft.painLocations) {
+                moveNextTab()
+            }
+            .tag(3)
+            
         case .resolved:
             EmptyView()
         }
@@ -131,7 +135,7 @@ struct MigraineQuestionTemplateView: View {
 }
 
 #Preview {
-    MigraineQuestionTemplateView(migraineSituation: .aftermath, totalTabs: MigraineSituations.incoming.numberOfTabs) {}
+    MigraineQuestionTemplateView(migraineSituation: .aftermath, totalTabs: MigraineSituations.aftermath.numberOfTabs) {}
         .environment(AuthManager())
         .environment(\.font, .custom("LibreCaslonText-Regular", size: 17, relativeTo: .body))
         .preferredColorScheme(.dark)
@@ -141,21 +145,23 @@ struct MigraineQuestionTemplateView: View {
 extension MigraineQuestionTemplateView {
     func moveNextTab() {
         if isLastTab {
-            withAnimation(.easeOut(duration: 0.5)) {
+            withAnimation(.easeOut(duration: 0.3)) {
                 EndLogging = true
             }
         } else {
-            currentTab = min(totalTabs - 1, currentTab + 1)
+            withAnimation(.easeOut(duration: 0.3)) {
+                currentTab = min(totalTabs - 1, currentTab + 1)
+            }
         }
     }
     
     func movePrevTab() {
         if isFirstTab {
-            withAnimation(.easeOut(duration: 0.3)) {
-                tappedCancel()
-            }
+            tappedCancel()
         } else {
-            currentTab = max(0, currentTab - 1)
+            withAnimation(.easeOut(duration: 0.3)) {
+                currentTab = max(0, currentTab - 1)
+            }
         }
     }
 }

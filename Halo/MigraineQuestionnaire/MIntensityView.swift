@@ -24,6 +24,7 @@ struct MIntensityView: View {
             FlowLayout(spacing: 16, alignment: .leading) {
                 ForEach(PainIntensity.allCases, id: \.self) { cause in
                     SelectCircle(label: cause.label, size: decideSize(cause)) {
+                        painIntensity = cause
                         tappedOption()
                     }
                 }
