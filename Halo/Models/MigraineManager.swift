@@ -187,6 +187,20 @@ enum PainLocation: String, Codable, CaseIterable {
     }
 }
 
+enum MedicationTaken: String, Codable, CaseIterable {
+    case yes    = "yes"
+    case no     = "no"
+    case unsure = "unsure"
+
+    var label: String {
+        switch self {
+        case .yes:    "Yes"
+        case .no:     "No"
+        case .unsure: "I don't know"
+        }
+    }
+}
+
 enum MedicationHelped: String, Codable, CaseIterable {
     case yes    = "yes"
     case no     = "no"
@@ -220,7 +234,7 @@ final class MigraineEpisode {
     var painCauses: [String]       // raw values of PainCause
     var customCause: String?       // populated when 'other' is selected
     var painLocations: [String]    // raw values of PainLocation
-    var medicationTaken: Bool?
+    var medicationTaken: String?
     var medicationTakenNote: String?
     var medicationHelped: String?
     var medicationHelpedNote: String?
@@ -263,6 +277,10 @@ final class MigraineEpisode {
         get { medicationHelped.flatMap { MedicationHelped(rawValue: $0) } }
         set { medicationHelped = newValue?.rawValue }
     }
+    var medicationTakenEnum: MedicationTaken? {
+        get { medicationTaken.flatMap { MedicationTaken(rawValue: $0) } }
+        set { medicationTaken = newValue?.rawValue }
+    }
 }
 
 
@@ -281,7 +299,7 @@ struct MigraineEpisodeDraft {
     var painCauses: [String] = []
     var customCause: String = ""
     var painLocations: [String] = []
-    var medicationTaken: Bool? = nil
+    var medicationTaken: MedicationTaken? = nil
     var medicationTakenNote: String = ""
     var medicationHelped: MedicationHelped? = nil
     var medicationHelpedNote: String = ""
@@ -301,7 +319,7 @@ struct MigraineEpisodeDraft {
         episode.painCauses           = painCauses
         episode.customCause          = painCauses.contains("other") ? customCause : nil
         episode.painLocations        = painLocations
-        episode.medicationTaken      = medicationTaken
+        episode.medicationTakenEnum  = medicationTaken
         episode.medicationTakenNote  = medicationTakenNote.isEmpty ? nil : medicationTakenNote
         episode.medicationHelpedEnum = medicationHelped
         episode.medicationHelpedNote = medicationHelpedNote.isEmpty ? nil : medicationHelpedNote

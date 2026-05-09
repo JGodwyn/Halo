@@ -18,6 +18,7 @@ struct MigraineQuestionTemplateView: View {
     @State private var migraineDraft : MigraineEpisodeDraft = .init()
     
     @State private var EndLogging : Bool = false
+    @State private var showRichConfirmationView : Bool = false
 
     var isLastTab: Bool { currentTab == totalTabs - 1 }
     var isFirstTab: Bool { currentTab == 0 }
@@ -79,6 +80,22 @@ struct MigraineQuestionTemplateView: View {
                 }
             }
         }
+        .overlay {
+            if showRichConfirmationView {
+                MTakeYourTimeRichView { type in
+                    if type == .continueAnyway {
+                        withAnimation(.easeOut(duration: 0.3)) {
+                            showRichConfirmationView = false
+                        }
+                        moveNextTab()
+                    } else {
+                        // if StopForNow, save and close flow
+                        tappedCancel()
+                    }
+                }
+                .transition(.blurReplace.combined(with: .scale(1.2, anchor: .center)))
+            }
+        }
     }
     
     @ViewBuilder
@@ -124,9 +141,16 @@ struct MigraineQuestionTemplateView: View {
             .tag(2)
             
             MPainLocationView(mainLocations: $migraineDraft.painLocations) {
-                moveNextTab()
+                withAnimation(.easeOut(duration: 0.3)) {
+                    showRichConfirmationView = true
+                }
             }
             .tag(3)
+            
+            MMedicationTakenView(medTaken: $migraineDraft.medicationTaken, medNote: $migraineDraft.medicationTakenNote) {
+                moveNextTab()
+            }
+            .tag(4)
             
         case .resolved:
             EmptyView()

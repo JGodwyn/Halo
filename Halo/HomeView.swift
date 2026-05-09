@@ -85,7 +85,6 @@ struct HomeView: View {
                 }
             }
         }
-        .animation(.easeOut(duration: 0.3), value: showLoggingSheet)
     }
     
     var firstTimeView : some View {
@@ -108,7 +107,9 @@ struct HomeView: View {
                 
                 VStack (spacing: 16) {
                     MainButton(label: "Log Migraine Attack", icon: "plus", fillContainer: true) {
-                        showLoggingSheet = true
+                        withAnimation(.easeOut(duration: 0.3)){
+                            showLoggingSheet = true
+                        }
                     }
                     
                     MainButton(state: .secondary, label: "Add Note Instead", fillContainer: true) {
@@ -159,7 +160,9 @@ struct HomeView: View {
         }
         .overlay(alignment: .bottom) {
             MainButton(state: .clear, label: "Cancel", fillContainer: true) {
-                showLoggingSheet = false
+                withAnimation(.easeOut(duration: 0.3)){
+                    showLoggingSheet = false
+                }
             }
         }
     }
@@ -175,7 +178,9 @@ struct HomeView: View {
 
 private extension HomeView {
     func moveToMigrainQuestions (situation : MigraineSituations) {
-        showLoggingSheet = false
+        withAnimation (.easeOut(duration: 0.3)) {
+            showLoggingSheet = false
+        }
         migraineSituation = situation
         Task {
             try? await Task.sleep(for: .seconds(0.2))
