@@ -14,6 +14,8 @@ struct MMedicationTakenView: View {
     @Namespace private var noteNS
     let tappedPill : () -> Void
     
+    @State private var expandNote : Bool = false
+    
     var body: some View {
         VStack(alignment: .leading) {
             VStack(alignment: .leading, spacing: 16) {
@@ -33,8 +35,15 @@ struct MMedicationTakenView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         .padding(Padding.mgnMobile)
         .overlay(alignment: .bottom) {
-//            collapsedNote
-            expandedNote
+            ZStack(alignment: .bottom) {
+                if expandNote {
+                    expandedNote
+                        .transition(.blurReplace)
+                } else {
+                    collapsedNote
+                        .transition(.blurReplace)
+                }
+            }
         }
     }
 }
@@ -50,29 +59,64 @@ extension MMedicationTakenView {
     
     var collapsedNote : some View {
         HStack {
-            Image("StickyNote")
-                .resizeImageTo(24)
-            HaloText(text: "Add a note", style: .btnLg)
+            HStack {
+                Image("StickyNote")
+                    .resizeImageTo(24)
+                HaloText(text: "Add a note", style: .btnLg)
+            }
+            .matchedGeometryEffect(id: "add a note", in: noteNS, properties: .position)
+            
+            ZStack {
+                RoundTextArea(placeholder: "Type your note here", boundTo: $medNote, backgroundColor: HaloColor.surface1.opacity(1), strokeColor: BrandColor.Gray.gray400.opacity(0), height: 100)
+                    .matchedGeometryEffect(id: "textarea", in: noteNS, properties: [.position, .size])
+                
+                MainButton(label: "Save note") {}
+                    .padding(.top, 8)
+                    .matchedGeometryEffect(id: "mainBtn", in: noteNS, properties: [.position, .size])
+            }
+            .frame(width: 0, height: 0)
+            .clipped()
         }
         .padding(.horizontal)
         .padding(.vertical, 12)
-        .background(HaloColor.surface0, in: RoundedRectangle(cornerRadius: 200, style: .continuous))
-        .matchedGeometryEffect(id: "noteNS", in: noteNS)
+        .background {
+            RoundedRectangle(cornerRadius: 200, style: .continuous)
+                .fill(HaloColor.surface1)
+                .matchedGeometryEffect(id: "cardbg", in: noteNS)
+        }
+        .onTapGesture {
+            withAnimation(.interactiveSpring(response: 0.5, dampingFraction: 0.7, blendDuration: 2)) {
+                expandNote = true
+            }
+        }
     }
     
     var expandedNote : some View {
         VStack(alignment: .leading) {
             HaloText(text: "Adding a note", style: .headingSm ,color: HaloColor.textSubtle)
-            RoundTextArea(boundTo: $medNote)
+                .matchedGeometryEffect(id: "add a note", in: noteNS)
+            RoundTextArea(placeholder: "Type your note here", boundTo: $medNote, backgroundColor: HaloColor.surface1.opacity(1), strokeColor: BrandColor.Gray.gray400.opacity(0), height: 320)
+                .matchedGeometryEffect(id: "textarea", in: noteNS, properties: [.position, .size])
+            
+            MainButton(label: "Save note", fillContainer: true) {
+                
+            }
+            .padding(.top, 8)
+            .matchedGeometryEffect(id: "mainBtn", in: noteNS, properties: [.position, .size])
         }
         .padding(.horizontal)
-        .padding(.vertical, 16)
-        .frame(width: 320, height: 360, alignment: .topLeading)
-        .background(HaloColor.surface0, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
-        .matchedGeometryEffect(id: "noteNS", in: noteNS)
+        .padding(.vertical, 12)
+        .frame(alignment: .topLeading)
+        .background {
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .fill(HaloColor.surface1)
+                .matchedGeometryEffect(id: "cardbg", in: noteNS)
+        }
         .overlay(alignment: .topTrailing) {
             Button {
-                
+                withAnimation(.interactiveSpring(response: 0.5, dampingFraction: 0.7)) {
+                    expandNote = false
+                }
             } label: {
                 Image(systemName: "xmark")
                     .padding(.horizontal, 8)
@@ -81,5 +125,6 @@ extension MMedicationTakenView {
             .buttonStyle(.glass)
             .padding(4)
         }
+        .padding(.horizontal, 24)
     }
 }

@@ -36,18 +36,24 @@ struct RoundTextArea: View {
     var state : TextFieldStates
     var placeholder : String
     @Binding var boundTo : String
+    var backgroundColor : Color?
+    var strokeColor : Color?
     var height : CGFloat
     var cornerRadius : CGFloat
     
     init(state: TextFieldStates = .base(message: ""),
          placeholder: String = "Enter text here",
          boundTo: Binding<String>,
+         backgroundColor : Color? = nil,
+         strokeColor : Color? = nil,
          height: CGFloat = 96,
          cornerRadius : CGFloat = 24
     ) {
         self.state = state
         self.placeholder = placeholder
         self._boundTo = boundTo
+        self.backgroundColor = backgroundColor
+        self.strokeColor = strokeColor
         self.height = height
         self.cornerRadius = cornerRadius
     }
@@ -58,7 +64,7 @@ struct RoundTextArea: View {
             .padding(.horizontal, -4)
             .scrollContentBackground(.hidden)
             .disabled(state.isDisabled)
-            .customRoundedTextField(state: state, height: height, cornerRadius: cornerRadius)
+            .customRoundedTextField(state: state, backgroundColor: backgroundColor, strokeColor: strokeColor, height: height, cornerRadius: cornerRadius, showShadow: false)
             .overlay(alignment: .topLeading) {
                 if boundTo.isEmpty {
                     HaloText(text: placeholder, color: HaloColor.textSubtle)
@@ -81,6 +87,8 @@ struct RoundTextArea: View {
             
             RoundTextArea(state: .base(message: "This is helper text") ,boundTo: .constant(""))
             
+            RoundTextArea(state: .base(message: "This should be white") ,boundTo: .constant(""), backgroundColor: .white, strokeColor: .red)
+            
             MainButton(label: "Remove focus") {}
             
         }
@@ -93,6 +101,8 @@ struct RoundTextArea: View {
 
 struct CustomRoundedTextField : ViewModifier {
     var state : TextFieldStates
+    var backgroundColor : Color?
+    var strokeColor : Color?
     var height : CGFloat
     var cornerRadius : CGFloat
     var strokeWidth : CGFloat
@@ -114,15 +124,31 @@ struct CustomRoundedTextField : ViewModifier {
             
         }
         
+        var useBackground : Bool {
+            if backgroundColor != nil {
+                return true
+            } else {
+                return false
+            }
+        }
+        
+        var useStroke : Bool {
+            if strokeColor != nil {
+                return true
+            } else {
+                return false
+            }
+        }
+        
         VStack(alignment: .leading) {
             content
                 .focused($isFocused)
                 .padding(.horizontal)
                 .frame(height: height)
-                .background(effectiveState.backgroundColor, in: .rect(cornerRadius: cornerRadius, style: .continuous))
+                .background(useBackground ? backgroundColor! : effectiveState.backgroundColor, in: .rect(cornerRadius: cornerRadius, style: .continuous))
                 .overlay {
                     RoundedRectangle(cornerRadius: cornerRadius)
-                        .strokeBorder(effectiveState.strokeColor, lineWidth: strokeWidth)
+                        .strokeBorder(useStroke ? strokeColor! : effectiveState.strokeColor, lineWidth: strokeWidth)
                         .strokeBorder(isFocused ? BrandColor.Powder.powder200 : .clear, lineWidth: strokeWidth)
                     
                     if showShadow {
@@ -256,6 +282,8 @@ enum TextFieldStates : Equatable {
 extension View {
     func customRoundedTextField(
         state : TextFieldStates = .base(message: ""),
+        backgroundColor : Color? = nil,
+        strokeColor : Color? = nil,
         height : CGFloat = 40,
         cornerRadius : CGFloat = .infinity,
         strokeWidth : CGFloat = 2,
@@ -263,7 +291,7 @@ extension View {
         showShadow : Bool = true,
         showSymbol : Bool = true,
     ) -> some View {
-        self.modifier(CustomRoundedTextField(state: state, height: height, cornerRadius: cornerRadius, strokeWidth: strokeWidth, shadowDepth: shadowDepth, showShadow: showShadow, showSymbol: showSymbol))
+        self.modifier(CustomRoundedTextField(state: state, backgroundColor: backgroundColor, strokeColor: strokeColor, height: height, cornerRadius: cornerRadius, strokeWidth: strokeWidth, shadowDepth: shadowDepth, showShadow: showShadow, showSymbol: showSymbol))
     }
 }
 
