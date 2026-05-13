@@ -16,7 +16,7 @@ struct HomeView: View {
     @State private var startLoggingAttack : Bool = false
     @State private var showLoggingSheet : Bool = false
     @State private var migraineSituation : MigraineSituations?
-    @State private var moveToMigraineQuestions : Bool = false
+//    @State private var moveToMigraineQuestions : Bool = false
     @State private var startAftermathFlow : Bool = false
     
     var body: some View {
@@ -69,13 +69,14 @@ struct HomeView: View {
         }
         .overlay {
             if let situation = migraineSituation {
-                MigraineQuestionTemplateView(migraineSituation: situation, totalTabs: situation.numberOfTabs) {
-                    withAnimation(.easeOut) {
+                MigraineQuestionTemplateView(migraineSituation: situation) {
+                    withAnimation(.easeOut(duration: 0.3)) {
                         migraineSituation = nil
                     }
                 }
             }
         }
+        .animation(.easeOut(duration: 0.3), value: migraineSituation)
         .overlay {
             if startAftermathFlow {
                 MTakeYourTimeView {
@@ -184,7 +185,7 @@ private extension HomeView {
         migraineSituation = situation
         Task {
             try? await Task.sleep(for: .seconds(0.2))
-            moveToMigraineQuestions = true
+//            moveToMigraineQuestions = true
         }
     }
 }

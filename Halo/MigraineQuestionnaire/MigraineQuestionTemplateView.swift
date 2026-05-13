@@ -7,89 +7,134 @@
 
 import SwiftUI
 
-struct MigraineQuestionTemplateView: View {
-    
-    let migraineSituation : MigraineSituations
-    let totalTabs : Int
-    @State private var currentTab = 0
-    
-    let tappedCancel : () -> Void // close the view
-    @State private var allowSwipe = true
-    @State private var migraineDraft : MigraineEpisodeDraft = .init()
-    
-    @State private var EndLogging : Bool = false
-    @State private var showRichConfirmationView : Bool = false
+// MARK: - Step model
 
-    var isLastTab: Bool { currentTab == totalTabs - 1 }
-    var isFirstTab: Bool { currentTab == 0 }
-    
+/// Represents a single screen in the questionnaire flow.
+/// Using a typed enum means adding a new step = one line here + one case in ScreensToShow.
+private enum QuestionStep: Hashable {
+    case aura
+    case intensity
+    case cause
+    case painLocation
+    case medicationTaken
+}
+
+// MARK: - Main view
+
+struct MigraineQuestionTemplateView: View {
+
+    let migraineSituation: MigraineSituations
+    let tappedCancel: () -> Void
+
+    // Draft accumulates answers across every step
+    @State private var migraineDraft: MigraineEpisodeDraft = .init()
+
+    // Step tracking — an ordered list of steps for this situation
+    @State private var steps: [QuestionStep] = []
+    @State private var currentIndex: Int = 0
+    // Track direction so the slide transition is always correct
+    @State private var goingForward: Bool = true
+
+    @State private var endLogging: Bool = false
+    @State private var showRichConfirmationView: Bool = false
+
+    private var totalSteps: Int { steps.count }
+    private var isLastStep: Bool { currentIndex == totalSteps - 1 }
+    private var isFirstStep: Bool { currentIndex == 0 }
+    private var currentStep: QuestionStep? { steps.indices.contains(currentIndex) ? steps[currentIndex] : nil }
+
+    // Asymmetric slide: forward = enter from right / exit to left
+    //                   back    = enter from left  / exit to right
+    private var stepTransition: AnyTransition {
+        .asymmetric(
+            insertion: .move(edge: goingForward ? .trailing : .leading),
+            removal:   .move(edge: goingForward ? .leading  : .trailing)
+        )
+    }
+
     var body: some View {
         ZStack {
             Color.clear.noiseBackground()
-            
+
             VStack(alignment: .leading, spacing: 24) {
+
+                // MARK: Navigation bar
                 HStack {
                     Button {
-                        movePrevTab()
+                        movePrev()
                     } label: {
-                        Image(systemName: currentTab == 0 ? "xmark" : "arrow.turn.up.left")
-                                .padding(.horizontal, 4)
-                                .frame(height: 32)
+                        Image(systemName: isFirstStep ? "xmark" : "arrow.turn.up.left")
+                            .padding(.horizontal, 4)
+                            .frame(height: 32)
                     }
                     .buttonStyle(.glass)
-                    
+
                     Spacer()
-                    
-                    Text("\(currentTab + 1) / \(totalTabs)")
+
+                    Text("\(currentIndex + 1) / \(totalSteps)")
                         .fontStyle(.bodyLg, color: HaloColor.textSubtle)
                         .contentTransition(.numericText())
-                    
+                        .animation(.easeOut(duration: 0.25), value: currentIndex)
+
                     Spacer()
-                    
+
                     Button {
-                        moveNextTab()
+                        moveNext()
                     } label: {
-                        HaloText(text: isLastTab ? "Submit" : "Skip", color: HaloColor.textSubtle)
+                        HaloText(text: isLastStep ? "Submit" : "Skip", color: HaloColor.textSubtle)
                             .frame(width: 64)
                     }
                 }
                 .padding(.horizontal, Padding.mgnMobile)
-                
-                TabView(selection: $currentTab) {
-                    ScreensToShow(situation: migraineSituation)
+
+                // MARK: Step content
+                // ZStack with an explicit .id() forces SwiftUI to fully swap the view
+                // on step change — each child gets a fresh identity, its own @State,
+                // and its own @Namespace, completely isolated from the step transition.
+                ZStack {
+                    if let step = currentStep {
+                        stepView(for: step)
+                            .transition(stepTransition)
+                            // .id() is the key: SwiftUI treats each step as a brand-new view
+                            // rather than trying to diff/reuse the previous one.
+                            .id(step)
+                    }
                 }
-                .tabViewStyle(.page(indexDisplayMode: .never))
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                .animation(.easeInOut(duration: 0.3), value: currentStep)
             }
             .ignoresSafeArea(edges: .bottom)
         }
+        .onAppear {
+            steps = buildSteps(for: migraineSituation)
+        }
+
+        // MARK: Overlays (unchanged from original)
         .overlay {
-            if EndLogging {
-                MConfirmationView(header: migraineSituation.loggingConfirmationHeader, description: migraineSituation.loggingConfirmationDescription, image: migraineSituation.loggingConfirmationImage) {
-                    withAnimation(.easeOut(duration: 0.3)) {
-                        tappedCancel()
-                    }
+            if endLogging {
+                MConfirmationView(
+                    header: migraineSituation.loggingConfirmationHeader,
+                    description: migraineSituation.loggingConfirmationDescription,
+                    image: migraineSituation.loggingConfirmationImage
+                ) {
+                    withAnimation(.easeOut(duration: 0.3)) { tappedCancel() }
                 }
-                .noiseBackground(transitions: true, isPresented: $EndLogging)
+                .noiseBackground(transitions: true, isPresented: $endLogging)
                 .transition(.blurReplace.combined(with: .scale(1.2, anchor: .center)))
             }
         }
-        .onChange(of: EndLogging) { oldValue, newValue in
-            if oldValue == true && newValue == false {
-                withAnimation(.easeOut(duration: 0.3)) {
-                    tappedCancel()
-                }
+        .onChange(of: endLogging) { old, new in
+            if old == true && new == false {
+                withAnimation(.easeOut(duration: 0.3)) { tappedCancel() }
             }
         }
         .overlay {
             if showRichConfirmationView {
                 MTakeYourTimeRichView { type in
                     if type == .continueAnyway {
-                        withAnimation(.easeOut(duration: 0.3)) {
-                            showRichConfirmationView = false
-                        }
-                        moveNextTab()
+                        withAnimation(.easeOut(duration: 0.3)) { showRichConfirmationView = false }
+                        moveNext()
                     } else {
-                        // if StopForNow, save and close flow
                         tappedCancel()
                     }
                 }
@@ -97,95 +142,83 @@ struct MigraineQuestionTemplateView: View {
             }
         }
     }
-    
-    @ViewBuilder
-    func ScreensToShow (situation : MigraineSituations) -> some View {
+
+    // MARK: - Step order per situation
+
+    private func buildSteps(for situation: MigraineSituations) -> [QuestionStep] {
         switch situation {
         case .active:
-            MAuraPresentView(auraStatus: $migraineDraft.aura) {
-                moveNextTab()
-            }
-            .tag(0)
-            
-            MIntensityView(painIntensity: $migraineDraft.painIntensity) {
-                moveNextTab()
-            }
-            .tag(1)
-            
+            return [.aura, .intensity]
         case .incoming:
-            MCauseView(mainCauses: $migraineDraft.painCauses ,writeSomethingElse: $migraineDraft.customCause) {
-                moveNextTab()
-            }
-            .gesture(allowSwipe ? nil : DragGesture())
-            .tag(0)
-            
-            MAuraPresentView(auraStatus: $migraineDraft.aura) {
-                moveNextTab()
-            }
-            .tag(1)
-            
-        case .aftermath:
-            MAuraPresentView(auraStatus: $migraineDraft.aura) {
-                moveNextTab()
-            }
-            .tag(0)
-            
-            MIntensityView(painIntensity: $migraineDraft.painIntensity) {
-                moveNextTab()
-            }
-            .tag(1)
-            
-            MCauseView(mainCauses: $migraineDraft.painCauses ,writeSomethingElse: $migraineDraft.customCause) {
-                moveNextTab()
-            }
-            .tag(2)
-            
+            return [.cause, .aura]
+        case .aftermath, .resolved:
+            return [.aura, .intensity, .cause, .painLocation, .medicationTaken]
+        }
+    }
+
+    // MARK: - Step → View mapping
+
+    @ViewBuilder
+    private func stepView(for step: QuestionStep) -> some View {
+        switch step {
+        case .aura:
+            MAuraPresentView(auraStatus: $migraineDraft.aura) { moveNext() }
+
+        case .intensity:
+            MIntensityView(painIntensity: $migraineDraft.painIntensity) { moveNext() }
+
+        case .cause:
+            MCauseView(
+                mainCauses: $migraineDraft.painCauses,
+                writeSomethingElse: $migraineDraft.customCause
+            ) { moveNext() }
+
+        case .painLocation:
             MPainLocationView(mainLocations: $migraineDraft.painLocations) {
-                withAnimation(.easeOut(duration: 0.3)) {
-                    showRichConfirmationView = true
-                }
+                withAnimation(.easeOut(duration: 0.3)) { showRichConfirmationView = true }
             }
-            .tag(3)
-            
-            MMedicationTakenView(medTaken: $migraineDraft.medicationTaken, medNote: $migraineDraft.medicationTakenNote) {
-                moveNextTab()
-            }
-            .tag(4)
-            
-        case .resolved:
-            EmptyView()
+
+        case .medicationTaken:
+            MMedicationTakenView(
+                medTaken: $migraineDraft.medicationTaken,
+                medNote: $migraineDraft.medicationTakenNote
+            ) { moveNext() }
         }
     }
 }
 
+// MARK: - Navigation helpers
+
+private extension MigraineQuestionTemplateView {
+
+    func moveNext() {
+        if isLastStep {
+            withAnimation(.easeOut(duration: 0.3)) { endLogging = true }
+        } else {
+            goingForward = true
+            withAnimation(.easeInOut(duration: 0.3)) {
+                currentIndex = min(totalSteps - 1, currentIndex + 1)
+            }
+        }
+    }
+
+    func movePrev() {
+        if isFirstStep {
+            tappedCancel()
+        } else {
+            goingForward = false
+            withAnimation(.easeInOut(duration: 0.3)) {
+                currentIndex = max(0, currentIndex - 1)
+            }
+        }
+    }
+}
+
+// MARK: - Preview
+
 #Preview {
-    MigraineQuestionTemplateView(migraineSituation: .aftermath, totalTabs: MigraineSituations.aftermath.numberOfTabs) {}
+    MigraineQuestionTemplateView(migraineSituation: .aftermath) {}
         .environment(AuthManager())
         .environment(\.font, .custom("LibreCaslonText-Regular", size: 17, relativeTo: .body))
         .preferredColorScheme(.dark)
-}
-
-
-extension MigraineQuestionTemplateView {
-    func moveNextTab() {
-        if isLastTab {
-            withAnimation(.easeOut(duration: 0.3)) {
-                EndLogging = true
-            }
-        } else {
-            withAnimation(.easeOut(duration: 0.3)) {
-                currentTab = min(totalTabs - 1, currentTab + 1)
-            }
-        }
-    }
-    
-    func movePrevTab() {
-        if isFirstTab {
-            tappedCancel()
-        } else {
-            withAnimation(.easeOut(duration: 0.3)) {
-                currentTab = max(0, currentTab - 1)
-            }
-        }
-    }
 }

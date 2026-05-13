@@ -44,12 +44,16 @@ struct MMedicationTakenView: View {
                         .transition(.blurReplace)
                 }
             }
+            .padding(.bottom, 16)
         }
     }
 }
 
 #Preview {
-    MMedicationTakenView(medTaken: .constant(.yes), medNote: .constant("Nothing here")){ }
+    @Previewable @State var medNote : String = ""
+    @Previewable @State var medTaken : MedicationTaken?
+    
+    MMedicationTakenView(medTaken: $medTaken, medNote: $medNote){ }
         .environment(AuthManager())
         .environment(\.font, .custom("LibreCaslonText-Regular", size: 17, relativeTo: .body))
         .preferredColorScheme(.dark)
@@ -63,8 +67,9 @@ extension MMedicationTakenView {
                 Image("StickyNote")
                     .resizeImageTo(24)
                 HaloText(text: "Add a note", style: .btnLg)
+                    .fixedSize()
             }
-            .matchedGeometryEffect(id: "add a note", in: noteNS, properties: .position)
+            .matchedGeometryEffect(id: "addNote", in: noteNS, properties: [.position, .size])
             
             ZStack {
                 RoundTextArea(placeholder: "Type your note here", boundTo: $medNote, backgroundColor: HaloColor.surface1.opacity(1), strokeColor: BrandColor.Gray.gray400.opacity(0), height: 100)
@@ -85,7 +90,7 @@ extension MMedicationTakenView {
                 .matchedGeometryEffect(id: "cardbg", in: noteNS)
         }
         .onTapGesture {
-            withAnimation(.interactiveSpring(response: 0.5, dampingFraction: 0.7, blendDuration: 2)) {
+            withAnimation(.interactiveSpring(response: 0.5, dampingFraction: 0.7)) {
                 expandNote = true
             }
         }
@@ -93,12 +98,13 @@ extension MMedicationTakenView {
     
     var expandedNote : some View {
         VStack(alignment: .leading) {
-            HaloText(text: "Adding a note", style: .headingSm ,color: HaloColor.textSubtle)
-                .matchedGeometryEffect(id: "add a note", in: noteNS)
+            HaloText(text: "Add your note", style: .headingSm ,color: HaloColor.textSubtle)
+                .fixedSize()
+                .matchedGeometryEffect(id: "addNote", in: noteNS, properties: [.position, .size])
             RoundTextArea(placeholder: "Type your note here", boundTo: $medNote, backgroundColor: HaloColor.surface1.opacity(1), strokeColor: BrandColor.Gray.gray400.opacity(0), height: 320)
                 .matchedGeometryEffect(id: "textarea", in: noteNS, properties: [.position, .size])
             
-            MainButton(label: "Save note", fillContainer: true) {
+            MainButton(state: medNote.isEmpty ? .disabled : .primary, label: "Save note", fillContainer: true) {
                 
             }
             .padding(.top, 8)
