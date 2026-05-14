@@ -38,6 +38,7 @@ struct MPainLocationView: View {
                     tappedContinue()
                 }
                 .padding(.top, 24)
+                .padding(.bottom, 40)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }

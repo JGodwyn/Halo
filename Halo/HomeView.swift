@@ -174,6 +174,7 @@ struct HomeView: View {
         .modelContainer(for: Item.self, inMemory: true)
         .environment(\.font, .custom("LibreCaslonText-Regular", size: 17, relativeTo: .body))
         .environment(AuthManager())
+        .preferredColorScheme(.dark)
 }
 
 
