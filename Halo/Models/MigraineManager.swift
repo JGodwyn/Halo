@@ -224,11 +224,11 @@ final class MigraineEpisode {
     var userId: String
     var note: String?
     var migraineType: String?
-    var date: Date?
-    var time: Date?      // store as Date, read only the time component
+    /// Single combined timestamp — maps to `occurred_at timestamptz` in Supabase.
+    /// The UX collects day and time separately; they are merged before commit.
+    var occurredAt: Date?
     var durationHours: Int?
     var durationMinutes: Int?
-    var durationSeconds: Int?
     var aura: String?
     var painIntensity: String?
     var painCauses: [String]       // raw values of PainCause
@@ -289,11 +289,12 @@ final class MigraineEpisode {
 struct MigraineEpisodeDraft {
     var note: String = ""
     var migraineType: MigraineType? = nil
-    var date: Date = Date()
-    var time: Date = Date()
+    /// Separate picker bindings — the user picks day and time independently in the UI.
+    /// Use `occurredAt` (the derived merge) when writing to the model.
+    var pickedDay: Date = Date()    // DatePicker displayedComponents: .date
+    var pickedTime: Date = Date()   // DatePicker displayedComponents: .hourAndMinute
     var durationHours: Int? = nil
     var durationMinutes: Int? = nil
-    var durationSeconds: Int? = nil
     var aura: AuraStatus? = nil
     var painIntensity: PainIntensity? = nil
     var painCauses: [String] = []
@@ -304,16 +305,23 @@ struct MigraineEpisodeDraft {
     var medicationHelped: MedicationHelped? = nil
     var medicationHelpedNote: String = ""
 
+    /// Merges the two picker selections into a single Date.
+    /// e.g. pickedDay = Sept 15 2026, pickedTime = 07:50 → Sept 15 2026 07:50:00 local
+    var occurredAt: Date {
+        let cal = Calendar.current
+        let hour   = cal.component(.hour,   from: pickedTime)
+        let minute = cal.component(.minute, from: pickedTime)
+        return cal.date(bySettingHour: hour, minute: minute, second: 0, of: pickedDay) ?? pickedDay
+    }
+
     // Converts the draft into a real SwiftData model
     func commit(to context: ModelContext, userId: String) -> MigraineEpisode {
         let episode = MigraineEpisode(userId: userId)
         episode.note                 = note.isEmpty ? nil : note
         episode.migraineTypeEnum     = migraineType
-        episode.date                 = date
-        episode.time                 = time
+        episode.occurredAt           = occurredAt
         episode.durationHours        = durationHours
         episode.durationMinutes      = durationMinutes
-        episode.durationSeconds      = durationSeconds
         episode.auraEnum             = aura
         episode.painIntensityEnum    = painIntensity
         episode.painCauses           = painCauses

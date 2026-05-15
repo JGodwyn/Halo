@@ -17,6 +17,8 @@ private enum QuestionStep: Hashable {
     case cause
     case painLocation
     case medicationTaken
+    case medicationHelped
+    case migraineStart
 }
 
 // MARK: - Main view
@@ -152,7 +154,7 @@ struct MigraineQuestionTemplateView: View {
         case .incoming:
             return [.cause, .aura]
         case .aftermath, .resolved:
-            return [.aura, .intensity, .cause, .painLocation, .medicationTaken]
+            return [.aura, .intensity, .cause, .painLocation, .medicationTaken, .medicationHelped, .migraineStart]
         }
     }
 
@@ -182,6 +184,18 @@ struct MigraineQuestionTemplateView: View {
             MMedicationTakenView(
                 medTaken: $migraineDraft.medicationTaken,
                 medNote: $migraineDraft.medicationTakenNote
+            ) { moveNext() }
+
+        case .medicationHelped:
+            MMedicationHelpedView(
+                medHelped: $migraineDraft.medicationHelped,
+                medNote: $migraineDraft.medicationHelpedNote
+            ) { moveNext() }
+
+        case .migraineStart:
+            MMigraineStartView(
+                pickedDay: $migraineDraft.pickedDay,
+                pickedTime: $migraineDraft.pickedTime
             ) { moveNext() }
         }
     }
