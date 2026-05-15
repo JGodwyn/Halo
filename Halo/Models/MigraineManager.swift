@@ -64,7 +64,7 @@ enum MigraineSituations {
             case .active:
                 return "Get some rest"
             case .aftermath:
-                return "Take your time"
+                return "Get some rest"
             case .resolved:
                 return "Logged!"
         }
@@ -77,7 +77,7 @@ enum MigraineSituations {
             case .active:
                 return "That’s enough for now. You can fill the other information later."
             case .aftermath:
-                return "Post-migraine hangovers are real. You can stop here and come back later if you want."
+                return "Post-migraine hangovers are real. Make sure to rest so you can fully recover."
             case .resolved:
                 return "Thanks for checking in."
         }

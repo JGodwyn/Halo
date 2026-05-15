@@ -19,6 +19,7 @@ private enum QuestionStep: Hashable {
     case medicationTaken
     case medicationHelped
     case migraineStart
+    case duration
 }
 
 // MARK: - Main view
@@ -154,7 +155,7 @@ struct MigraineQuestionTemplateView: View {
         case .incoming:
             return [.cause, .aura]
         case .aftermath, .resolved:
-            return [.aura, .intensity, .cause, .painLocation, .medicationTaken, .medicationHelped, .migraineStart]
+            return [.aura, .intensity, .cause, .painLocation, .medicationTaken, .medicationHelped, .migraineStart, .duration]
         }
     }
 
@@ -196,6 +197,12 @@ struct MigraineQuestionTemplateView: View {
             MMigraineStartView(
                 pickedDay: $migraineDraft.pickedDay,
                 pickedTime: $migraineDraft.pickedTime
+            ) { moveNext() }
+
+        case .duration:
+            MDurationView(
+                durationHours: $migraineDraft.durationHours,
+                durationMinutes: $migraineDraft.durationMinutes
             ) { moveNext() }
         }
     }
