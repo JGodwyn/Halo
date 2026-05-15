@@ -154,8 +154,10 @@ struct MigraineQuestionTemplateView: View {
             return [.aura, .intensity]
         case .incoming:
             return [.cause, .aura]
-        case .aftermath, .resolved:
+        case .aftermath:
             return [.aura, .intensity, .cause, .painLocation, .medicationTaken, .medicationHelped, .migraineStart, .duration]
+        case .resolved:
+            return [.migraineStart, .duration, .aura, .intensity, .cause, .painLocation, .medicationTaken, .medicationHelped]
         }
     }
 
@@ -178,7 +180,13 @@ struct MigraineQuestionTemplateView: View {
 
         case .painLocation:
             MPainLocationView(mainLocations: $migraineDraft.painLocations) {
-                withAnimation(.easeOut(duration: 0.3)) { showRichConfirmationView = true }
+                withAnimation(.easeOut(duration: 0.3)) {
+                    if migraineSituation == .aftermath {
+                        showRichConfirmationView = true
+                    } else {
+                        moveNext()
+                    }
+                }
             }
 
         case .medicationTaken:
@@ -238,7 +246,7 @@ private extension MigraineQuestionTemplateView {
 // MARK: - Preview
 
 #Preview {
-    MigraineQuestionTemplateView(migraineSituation: .aftermath) {}
+    MigraineQuestionTemplateView(migraineSituation: .resolved) {}
         .environment(AuthManager())
         .environment(\.font, .custom("LibreCaslonText-Regular", size: 17, relativeTo: .body))
         .preferredColorScheme(.dark)

@@ -101,7 +101,7 @@ struct HomeView: View {
                             .fontStyle(.bodyLg, color: HaloColor.textSubtle)
                     }
                     
-                    HaloText(text: "Your first time...", style: .headingLg)
+                    HaloText(text: "Your first log...", style: .headingLg)
                     
                     HaloText(text: "Start by logging a migraine attack or entering a note. We’ll give you tips as you keep using the app.", style: .bodyLg, color: HaloColor.textSubtle)
                 }
