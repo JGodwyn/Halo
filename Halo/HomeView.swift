@@ -12,7 +12,7 @@ struct HomeView: View {
     
     @Environment(AuthManager.self) var auth
     @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+    @Query(sort: \MigraineEpisode.createdAt, order: .reverse) private var episodes: [MigraineEpisode]
     @State private var startLoggingAttack : Bool = false
     @State private var showLoggingSheet : Bool = false
     @State private var migraineSituation : MigraineSituations?
@@ -21,8 +21,25 @@ struct HomeView: View {
     
     var body: some View {
         NavigationStack {
-            ZStack {
-                firstTimeView
+            ZStack(alignment: .bottomTrailing) {
+                if episodes.isEmpty {
+                    firstTimeView
+                    Button {
+                        
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.title2.weight(.bold))
+                            .foregroundColor(BrandColor.Gray.gray0)
+                            .padding()
+                            .frame(width: 72, height: 72)
+                            .background(BrandColor.Powder.powder100)
+                            .clipShape(Circle())
+                            .shadow(color: .black.opacity(0.3), radius: 5, x: 0, y: 3)
+                    }
+                    .padding() // keeps button away from screen edges
+                } else {
+                    contentView
+                }
             }
             .padding(.horizontal, Padding.mgnMobile)
             .noiseBackground()
@@ -86,6 +103,7 @@ struct HomeView: View {
                 }
             }
         }
+
     }
     
     var firstTimeView : some View {
@@ -120,6 +138,29 @@ struct HomeView: View {
             }
             .multilineTextAlignment(.center)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        }
+    }
+    
+    var contentView: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                HStack(alignment: .center) {
+                    HaloText(text: "Recent attacks", style: .headingSm)
+                    Spacer()
+                    Button {
+
+                    } label: {
+                        HaloText(text: "See All", style: .bodyLg, color: HaloColor.textSubtle)
+                    }
+                }
+
+                ForEach(episodes) { episode in
+                    MigraineLogCard(episode: episode)
+                }
+            }
+            .padding(16)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+            .background(HaloColor.surface2, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
     }
     
@@ -171,7 +212,7 @@ struct HomeView: View {
 
 #Preview {
     HomeView()
-        .modelContainer(for: Item.self, inMemory: true)
+        .modelContainer(for: MigraineEpisode.self, inMemory: true)
         .environment(\.font, .custom("LibreCaslonText-Regular", size: 17, relativeTo: .body))
         .environment(AuthManager())
         .preferredColorScheme(.dark)

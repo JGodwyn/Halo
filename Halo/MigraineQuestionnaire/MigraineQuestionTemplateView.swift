@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 // MARK: - Step model
 
@@ -27,7 +28,14 @@ private enum QuestionStep: Hashable {
 struct MigraineQuestionTemplateView: View {
 
     let migraineSituation: MigraineSituations
+    /// Pass a pre-populated draft when continuing an existing episode
+    /// (e.g. incoming → resolved, or marking didNotOccur).
+    /// Leave nil to start a fresh log.
+    let initialDraft: MigraineEpisodeDraft? = nil
     let tappedCancel: () -> Void
+
+    @Environment(\.modelContext) private var modelContext
+    @Environment(AuthManager.self) private var auth
 
     // Draft accumulates answers across every step
     @State private var migraineDraft: MigraineEpisodeDraft = .init()
@@ -110,6 +118,13 @@ struct MigraineQuestionTemplateView: View {
         }
         .onAppear {
             steps = buildSteps(for: migraineSituation)
+            if let seed = initialDraft {
+                // Continuing an existing episode — restore prior data, then
+                // stamp the new migraineType for the phase we're entering.
+                migraineDraft = seed
+            }
+            // Always set to the current flow's type (overrides any seed value)
+            migraineDraft.migraineType = migraineSituation.asMigraineType
         }
 
         // MARK: Overlays (unchanged from original)
@@ -222,6 +237,7 @@ private extension MigraineQuestionTemplateView {
 
     func moveNext() {
         if isLastStep {
+            migraineDraft.commit(to: modelContext, userId: auth.userId)
             withAnimation(.easeOut(duration: 0.3)) { endLogging = true }
         } else {
             goingForward = true
@@ -246,7 +262,9 @@ private extension MigraineQuestionTemplateView {
 // MARK: - Preview
 
 #Preview {
-    MigraineQuestionTemplateView(migraineSituation: .resolved) {}
+    MigraineQuestionTemplateView(migraineSituation: .resolved) {
+        
+    }
         .environment(AuthManager())
         .environment(\.font, .custom("LibreCaslonText-Regular", size: 17, relativeTo: .body))
         .preferredColorScheme(.dark)

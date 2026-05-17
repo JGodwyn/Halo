@@ -82,6 +82,16 @@ enum MigraineSituations {
                 return "Thanks for checking in."
         }
     }
+
+    /// Maps the UX-facing situation to the stored MigraineType value.
+    var asMigraineType: MigraineType {
+        switch self {
+        case .incoming:  .incoming
+        case .active:    .active
+        case .aftermath: .aftermath
+        case .resolved:  .resolved
+        }
+    }
 }
 
 enum MigraineType: String, Codable, CaseIterable {
@@ -287,6 +297,15 @@ final class MigraineEpisode {
 // hold the migraine fields as the user goes through the flow
 
 struct MigraineEpisodeDraft {
+
+    // MARK: - Identity
+
+    /// nil  → this draft will create a brand-new MigraineEpisode on commit.
+    /// non-nil → this draft will patch the existing episode with the matching id.
+    var episodeId: UUID? = nil
+
+    // MARK: - Fields
+
     var note: String = ""
     var migraineType: MigraineType? = nil
     /// Separate picker bindings — the user picks day and time independently in the UI.
@@ -305,6 +324,8 @@ struct MigraineEpisodeDraft {
     var medicationHelped: MedicationHelped? = nil
     var medicationHelpedNote: String = ""
 
+    // MARK: - Derived
+
     /// Merges the two picker selections into a single Date.
     /// e.g. pickedDay = Sept 15 2026, pickedTime = 07:50 → Sept 15 2026 07:50:00 local
     var occurredAt: Date {
@@ -314,24 +335,119 @@ struct MigraineEpisodeDraft {
         return cal.date(bySettingHour: hour, minute: minute, second: 0, of: pickedDay) ?? pickedDay
     }
 
-    // Converts the draft into a real SwiftData model
+    // MARK: - Factory: continuing an existing episode
+
+    /// Builds a draft pre-populated from a live MigraineEpisode.
+    /// Use this when the user is updating a previously logged episode
+    /// (e.g. an incoming log that is now resolving, or marking didNotOccur).
+    ///
+    /// Because pickedDay/pickedTime are seeded from the existing occurredAt,
+    /// skipping the migraineStart step during the update flow is safe —
+    /// occurredAt will round-trip to the same value rather than resetting to Date().
+    static func continuing(from episode: MigraineEpisode) -> MigraineEpisodeDraft {
+        var draft = MigraineEpisodeDraft()
+        draft.episodeId             = episode.id
+        draft.note                  = episode.note ?? ""
+        draft.aura                  = episode.auraEnum
+        draft.painIntensity         = episode.painIntensityEnum
+        draft.painCauses            = episode.painCauses
+        draft.customCause           = episode.customCause ?? ""
+        draft.painLocations         = episode.painLocations
+        draft.medicationTaken       = episode.medicationTakenEnum
+        draft.medicationTakenNote   = episode.medicationTakenNote ?? ""
+        draft.medicationHelped      = episode.medicationHelpedEnum
+        draft.medicationHelpedNote  = episode.medicationHelpedNote ?? ""
+        // Seed pickers from the existing timestamp so skipping migraineStart is safe
+        if let date = episode.occurredAt {
+            draft.pickedDay  = date
+            draft.pickedTime = date
+        }
+        return draft
+    }
+
+    // MARK: - Commit
+
+    /// Creates a new episode or patches the existing one, depending on episodeId.
+    @discardableResult
     func commit(to context: ModelContext, userId: String) -> MigraineEpisode {
+        if let id = episodeId {
+            return updateExisting(id: id, in: context)
+        } else {
+            return createNew(in: context, userId: userId)
+        }
+    }
+
+    // MARK: - Private helpers
+
+    private func createNew(in context: ModelContext, userId: String) -> MigraineEpisode {
         let episode = MigraineEpisode(userId: userId)
-        episode.note                 = note.isEmpty ? nil : note
-        episode.migraineTypeEnum     = migraineType
-        episode.occurredAt           = occurredAt
-        episode.durationHours        = durationHours
-        episode.durationMinutes      = durationMinutes
-        episode.auraEnum             = aura
-        episode.painIntensityEnum    = painIntensity
-        episode.painCauses           = painCauses
-        episode.customCause          = painCauses.contains("other") ? customCause : nil
-        episode.painLocations        = painLocations
-        episode.medicationTakenEnum  = medicationTaken
-        episode.medicationTakenNote  = medicationTakenNote.isEmpty ? nil : medicationTakenNote
-        episode.medicationHelpedEnum = medicationHelped
-        episode.medicationHelpedNote = medicationHelpedNote.isEmpty ? nil : medicationHelpedNote
+        apply(to: episode, overwriteAll: true)
         context.insert(episode)
         return episode
+    }
+
+    private func updateExisting(id: UUID, in context: ModelContext) -> MigraineEpisode {
+        let descriptor = FetchDescriptor<MigraineEpisode>(
+            predicate: #Predicate { $0.id == id }
+        )
+        guard let episode = (try? context.fetch(descriptor))?.first else {
+            // Defensive fallback — should never happen in normal flow
+            assertionFailure("MigraineEpisodeDraft.updateExisting: no episode found for id \(id)")
+            let fallback = MigraineEpisode(userId: "")
+            apply(to: fallback, overwriteAll: true)
+            return fallback
+        }
+        apply(to: episode, overwriteAll: false)
+        return episode
+    }
+
+    /// Writes draft fields into a MigraineEpisode.
+    ///
+    /// - `overwriteAll: true`  — used on **create**: every field is written,
+    ///   including nils (which clear any pre-existing value).
+    /// - `overwriteAll: false` — used on **update**: only non-nil / non-empty
+    ///   fields are written so earlier-phase data from a previous session is
+    ///   never accidentally cleared.
+    private func apply(to episode: MigraineEpisode, overwriteAll: Bool) {
+        // Always stamp migraineType and updatedAt regardless of mode
+        episode.migraineTypeEnum = migraineType
+        episode.updatedAt        = Date()
+        episode.isSynced         = false
+
+        if overwriteAll {
+            episode.note                 = note.isEmpty ? nil : note
+            episode.occurredAt           = occurredAt
+            episode.durationHours        = durationHours
+            episode.durationMinutes      = durationMinutes
+            episode.auraEnum             = aura
+            episode.painIntensityEnum    = painIntensity
+            episode.painCauses           = painCauses
+            episode.customCause          = painCauses.contains("other") ? customCause : nil
+            episode.painLocations        = painLocations
+            episode.medicationTakenEnum  = medicationTaken
+            episode.medicationTakenNote  = medicationTakenNote.isEmpty ? nil : medicationTakenNote
+            episode.medicationHelpedEnum = medicationHelped
+            episode.medicationHelpedNote = medicationHelpedNote.isEmpty ? nil : medicationHelpedNote
+        } else {
+            // Patch only the fields the user touched in this session.
+            // nil/empty means the step was skipped → leave the existing value intact.
+            if !note.isEmpty             { episode.note = note }
+            // occurredAt: pickedDay/pickedTime are seeded from the existing value in
+            // continuing(from:), so this is a no-op when migraineStart is skipped.
+            episode.occurredAt = occurredAt
+            if let v = durationHours     { episode.durationHours = v }
+            if let v = durationMinutes   { episode.durationMinutes = v }
+            if let v = aura              { episode.auraEnum = v }
+            if let v = painIntensity     { episode.painIntensityEnum = v }
+            if !painCauses.isEmpty {
+                episode.painCauses  = painCauses
+                episode.customCause = painCauses.contains("other") ? customCause : nil
+            }
+            if !painLocations.isEmpty    { episode.painLocations = painLocations }
+            if let v = medicationTaken   { episode.medicationTakenEnum = v }
+            if !medicationTakenNote.isEmpty  { episode.medicationTakenNote = medicationTakenNote }
+            if let v = medicationHelped  { episode.medicationHelpedEnum = v }
+            if !medicationHelpedNote.isEmpty { episode.medicationHelpedNote = medicationHelpedNote }
+        }
     }
 }

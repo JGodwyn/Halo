@@ -124,9 +124,25 @@ final class AuthManager {
             }
         }
     }
-    
+
+    /// The Supabase user UUID, persisted across restarts.
+    /// Populated after a successful sign-in / profile fetch.
+    @ObservationIgnored
+    @AppStorage("userId") var _userId: String = ""
+    private(set) var userId: String {
+        get {
+            access(keyPath: \.userId)
+            return _userId
+        }
+        set {
+            withMutation(keyPath: \.userId) {
+                _userId = newValue
+            }
+        }
+    }
+
     var errorMessage: String? = nil
-    
+
     var isLoading: Bool = false
 
     // MARK: - Google Sign In
@@ -189,6 +205,7 @@ final class AuthManager {
 
             userName = profile.fullName
             dateOfBirth = profile.dateOfBirth
+            userId = profile.id.uuidString  // persist for synchronous access in views
 
             withAnimation(.interactiveSpring(response: 0.6, dampingFraction: 0.8)) {
                 loginStatus = profile.dateOfBirth != nil ? .loggedIn : .onboarding

@@ -72,7 +72,7 @@ public enum Padding {
     public static let pad8xl: CGFloat = Units.units8xl
     public static let pad9xl: CGFloat = Units.units9xl
     public static let mgnDesktop: CGFloat = Units.units8xl
-    public static let mgnMobile: CGFloat = Units.unitsXl
+    public static let mgnMobile: CGFloat = Units.unitsLg
 }
 
 /// Corner radius. References Units.
