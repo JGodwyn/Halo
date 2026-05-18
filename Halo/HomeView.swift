@@ -18,27 +18,38 @@ struct HomeView: View {
     @State private var migraineSituation : MigraineSituations?
 //    @State private var moveToMigraineQuestions : Bool = false
     @State private var startAftermathFlow : Bool = false
+    @GestureState private var addBtnPressed : Bool = false
     
     var body: some View {
         NavigationStack {
             ZStack(alignment: .bottomTrailing) {
                 if episodes.isEmpty {
                     firstTimeView
-                    Button {
-                        
-                    } label: {
-                        Image(systemName: "plus")
-                            .font(.title2.weight(.bold))
-                            .foregroundColor(BrandColor.Gray.gray0)
-                            .padding()
-                            .frame(width: 72, height: 72)
-                            .background(BrandColor.Powder.powder100)
-                            .clipShape(Circle())
-                            .shadow(color: .black.opacity(0.3), radius: 5, x: 0, y: 3)
-                    }
-                    .padding() // keeps button away from screen edges
                 } else {
                     contentView
+                    Image(systemName: "plus")
+                        .font(.title2.weight(.bold))
+                        .foregroundColor(BrandColor.Gray.gray0)
+                        .padding()
+                        .frame(width: 96, height: 96)
+                        .background(BrandColor.Powder.powder100)
+                        .clipShape(Circle())
+                        .mask {
+                            Image("RoughEdgedCircle")
+                                .resizeImageTo(104)
+                        }
+                        .shadow(color: .black.opacity(0.3), radius: 5, x: 0, y: 3)
+                        .padding(12)
+                        .simultaneousGesture(
+                            DragGesture(minimumDistance: 0)
+                                .updating($addBtnPressed) { _, state, _ in state = true }
+                                .onEnded { _ in                             withAnimation(.easeOut(duration: 0.3)) {
+                                    showLoggingSheet = true
+                                } }
+                        )
+                        .scaleEffect(addBtnPressed ? 0.6 : 1.0)
+                        .blur(radius: addBtnPressed ? 64 : 0)
+                        .animation(.spring(response: 0.5, dampingFraction: 0.6), value: addBtnPressed)
                 }
             }
             .padding(.horizontal, Padding.mgnMobile)
@@ -154,14 +165,18 @@ struct HomeView: View {
                     }
                 }
 
-                ForEach(episodes) { episode in
-                    MigraineLogCard(episode: episode)
+                VStack(spacing: 8) {
+                    ForEach(episodes) { episode in
+                        MigraineLogCard(episode: episode)
+                    }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
             .padding(16)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+            .frame(maxWidth: .infinity, alignment: .leading)
             .background(HaloColor.surface2, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
+        .frame(maxWidth: .infinity)
     }
     
     var migraineTypeView : some View {

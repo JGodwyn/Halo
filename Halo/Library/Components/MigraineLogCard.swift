@@ -46,9 +46,38 @@ struct MigraineLogCard: View {
 
             HaloText(text: addedDateText, style: .bodyMd, color: HaloColor.textSubtle)
         }
-        .padding(16)
+        .padding(.vertical, 16)
+        .padding(.trailing, 16)
+        .padding(.leading, 40)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(HaloColor.surface1, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .mask(alignment: .trailing) {
+            ZStack(alignment: .leading) {
+                Rectangle() // keeps the full card visible
+                
+                VStack(spacing: 4) {
+                    Group {
+                        Circle()
+                        Circle()
+                        Circle()
+                        Circle()
+                        Circle()
+                        Circle()
+                        Circle()
+                        Circle()
+                        Circle()
+                        Circle()
+                    }
+                    .frame(width: 12, height: 12)
+                }
+                .padding(12)
+                .blendMode(.destinationOut)
+                
+//                Image("PunctureMarks")
+//                    .blendMode(.destinationOut) // punches holes where the image is
+            }
+            .compositingGroup() // required for destinationOut to work
+        }
     }
 }
 
@@ -72,4 +101,33 @@ struct MigraineLogCard: View {
     .environment(\.font, .custom("LibreCaslonText-Regular", size: 17, relativeTo: .body))
     .environment(AuthManager())
     .preferredColorScheme(.dark)
+}
+
+
+
+struct PunctureMarkShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        
+        // Full card
+        path.addRoundedRect(
+            in: rect,
+            cornerSize: CGSize(width: 16, height: 16),
+            style: .continuous
+        )
+        
+        // Punch out circles (adjust x/y/radius to match your marks)
+        let radius: CGFloat = 12
+        let x = rect.maxX - radius
+        for y in [rect.minY - radius, rect.maxY - radius] {
+            path.addEllipse(in: CGRect(
+                x: x, y: y,
+                width: radius * 2, height: radius * 2
+            ))
+        }
+        
+        return path
+    }
+    
+    var eoFill: Bool { true }
 }
