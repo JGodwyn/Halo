@@ -58,8 +58,8 @@ struct MigraineQuestionTemplateView: View {
     //                   back    = enter from left  / exit to right
     private var stepTransition: AnyTransition {
         .asymmetric(
-            insertion: .move(edge: goingForward ? .trailing : .leading),
-            removal:   .move(edge: goingForward ? .leading  : .trailing)
+            insertion: .move(edge: goingForward ? .trailing : .leading).combined(with: .opacity).combined(with: .scale(scale: 0.75, anchor: .trailing)),
+            removal:   .move(edge: goingForward ? .leading  : .trailing).combined(with: .opacity).combined(with: .scale(scale: 0.75, anchor: .leading))
         )
     }
 
@@ -153,6 +153,7 @@ struct MigraineQuestionTemplateView: View {
                         withAnimation(.easeOut(duration: 0.3)) { showRichConfirmationView = false }
                         moveNext()
                     } else {
+                        migraineDraft.commit(to: modelContext, userId: auth.userId)
                         tappedCancel()
                     }
                 }
@@ -263,9 +264,10 @@ private extension MigraineQuestionTemplateView {
 
 #Preview {
     MigraineQuestionTemplateView(migraineSituation: .resolved) {
-        
+
     }
-        .environment(AuthManager())
-        .environment(\.font, .custom("LibreCaslonText-Regular", size: 17, relativeTo: .body))
-        .preferredColorScheme(.dark)
+    .modelContainer(for: MigraineEpisode.self, inMemory: true)
+    .environment(AuthManager())
+    .environment(\.font, .custom("LibreCaslonText-Regular", size: 17, relativeTo: .body))
+    .preferredColorScheme(.dark)
 }

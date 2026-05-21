@@ -15,6 +15,7 @@ struct HomeView: View {
     @Query(sort: \MigraineEpisode.createdAt, order: .reverse) private var episodes: [MigraineEpisode]
     @State private var startLoggingAttack : Bool = false
     @State private var showLoggingSheet : Bool = false
+    @State private var showLoggingOptions : Bool = false
     @State private var migraineSituation : MigraineSituations?
 //    @State private var moveToMigraineQuestions : Bool = false
     @State private var startAftermathFlow : Bool = false
@@ -25,34 +26,13 @@ struct HomeView: View {
             ZStack(alignment: .bottomTrailing) {
                 if episodes.isEmpty {
                     firstTimeView
+                        .padding(.horizontal, Padding.mgnMobile)
                 } else {
                     contentView
-                    Image(systemName: "plus")
-                        .font(.title2.weight(.bold))
-                        .foregroundColor(BrandColor.Gray.gray0)
-                        .padding()
-                        .frame(width: 96, height: 96)
-                        .background(BrandColor.Powder.powder100)
-                        .clipShape(Circle())
-                        .mask {
-                            Image("RoughEdgedCircle")
-                                .resizeImageTo(104)
-                        }
-                        .shadow(color: .black.opacity(0.3), radius: 5, x: 0, y: 3)
-                        .padding(12)
-                        .simultaneousGesture(
-                            DragGesture(minimumDistance: 0)
-                                .updating($addBtnPressed) { _, state, _ in state = true }
-                                .onEnded { _ in                             withAnimation(.easeOut(duration: 0.3)) {
-                                    showLoggingSheet = true
-                                } }
-                        )
-                        .scaleEffect(addBtnPressed ? 0.6 : 1.0)
-                        .blur(radius: addBtnPressed ? 64 : 0)
-                        .animation(.spring(response: 0.5, dampingFraction: 0.6), value: addBtnPressed)
+                        .padding(.horizontal, Padding.mgnMobile)
+                    floatingButton
                 }
             }
-            .padding(.horizontal, Padding.mgnMobile)
             .noiseBackground()
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -220,6 +200,142 @@ struct HomeView: View {
                 withAnimation(.easeOut(duration: 0.3)){
                     showLoggingSheet = false
                 }
+            }
+        }
+    }
+    
+    var floatingButton : some View {
+        ZStack(alignment: .bottomTrailing) {
+            if showLoggingOptions {
+                Color.clear
+                    .contentShape(Rectangle()) // makes it tappable
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation(.interactiveSpring(response: 0.4, dampingFraction: 0.6)) {
+                            showLoggingOptions = false
+                        }
+                    }
+                
+                Group {
+                    BlurView(style: .dark)
+                    Color.black.opacity(0.2)
+                    }
+                    .ignoresSafeArea()
+                
+            }
+            
+            Image(systemName: "plus")
+                .font(.system(size: 24))
+                .foregroundColor(BrandColor.Gray.gray0)
+                .padding()
+                .frame(width: 96, height: 96)
+                .background(BrandColor.Powder.powder100)
+                .clipShape(Circle())
+                .mask {
+                    Image("RoughEdgedCircle")
+                        .resizeImageTo(104)
+                }
+                .shadow(color: .black.opacity(0.3), radius: 5, x: 0, y: 3)
+                .padding(12)
+                .simultaneousGesture(
+                    DragGesture(minimumDistance: 0)
+                        .updating($addBtnPressed) { _, state, _ in state = true }
+                        .onEnded { _ in                             withAnimation(.interactiveSpring(response: 0.4, dampingFraction: 0.6)) {
+                            showLoggingOptions.toggle()
+                        } }
+                )
+                .scaleEffect(addBtnPressed ? 0.6 : 1.0)
+                .blur(radius: addBtnPressed ? 8 : 0)
+                .animation(.spring(response: 0.5, dampingFraction: 0.6), value: addBtnPressed)
+                .rotationEffect(.degrees(showLoggingOptions ? 135 : 0))
+            
+            // floating options
+            if showLoggingOptions {
+                VStack(alignment: .leading) {
+                    Button {
+                        withAnimation(.easeOut(duration: 0.3)) {
+                            showLoggingSheet = true
+                            showLoggingOptions = false
+                        }
+                    } label: {
+                        HStack(spacing: 16) {
+                            HaloText(text: "Log new attack", style: .headingSm)
+                            Image(systemName: "plus")
+                                .font(.system(size: 24))
+                                .foregroundStyle(HaloColor.iconSubtle)
+                        }
+                        .padding(.bottom, 8)
+                        .frame(height: 64)
+                        .overlay(alignment: .bottom) {
+                            GeometryReader { geo in
+                                Path { path in
+                                    path.move(to: CGPoint(x: 0, y: 0))
+                                    path.addLine(to: CGPoint(x: geo.size.width, y: 0))
+                                }
+                                .stroke(style: StrokeStyle(lineWidth: 1, dash: [1, 8]))
+                                .foregroundStyle(HaloColor.iconBold)
+                                .frame(height: 1)
+                            }
+                            .frame(height: 1)
+                        }
+                    }
+                    
+                    
+                    Button {
+                        
+                    } label: {
+                        HStack(spacing: 16) {
+                            HaloText(text: "Add a note", style: .headingSm)
+                            Image(systemName: "pencil")
+                                .font(.system(size: 24))
+                                .foregroundStyle(HaloColor.iconSubtle)
+                        }
+                        .padding(.bottom, 8)
+                        .frame(height: 64)
+                        .overlay(alignment: .bottom) {
+                            GeometryReader { geo in
+                                Path { path in
+                                    path.move(to: CGPoint(x: 0, y: 0))
+                                    path.addLine(to: CGPoint(x: geo.size.width, y: 0))
+                                }
+                                .stroke(style: StrokeStyle(lineWidth: 1, dash: [1, 8]))
+                                .foregroundStyle(HaloColor.iconBold)
+                                .frame(height: 1)
+                            }
+                            .frame(height: 1)
+                        }
+                    }
+                    
+                    
+                    Button {
+                        
+                    } label: {
+                        HStack(spacing: 16) {
+                            HaloText(text: "Aura simulator", style: .headingSm)
+                            Image(systemName: "eye")
+                                .font(.system(size: 20))
+                                .foregroundStyle(HaloColor.iconSubtle)
+                        }
+                        .padding(.bottom, 8)
+                        .frame(height: 64)
+                        .overlay(alignment: .bottom) {
+                            GeometryReader { geo in
+                                Path { path in
+                                    path.move(to: CGPoint(x: 0, y: 0))
+                                    path.addLine(to: CGPoint(x: geo.size.width, y: 0))
+                                }
+                                .stroke(style: StrokeStyle(lineWidth: 1, dash: [1, 8]))
+                                .foregroundStyle(HaloColor.iconBold)
+                                .frame(height: 1)
+                            }
+                            .frame(height: 1)
+                        }
+                    }
+                }
+                .transition(.scale(0.5, anchor: .bottomTrailing).combined(with: .blurReplace))
+                .padding()
+                .contentShape(Rectangle())
+                .offset(x: -24, y: -128)
             }
         }
     }
