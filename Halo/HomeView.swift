@@ -17,26 +17,33 @@ struct HomeView: View {
     @State private var showLoggingSheet : Bool = false
     @State private var showLoggingOptions : Bool = false
     @State private var migraineSituation : MigraineSituations?
-//    @State private var moveToMigraineQuestions : Bool = false
     @State private var startAftermathFlow : Bool = false
     @GestureState private var addBtnPressed : Bool = false
+    @State private var navigationPath: [MigraineEpisode] = []
     
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navigationPath) {
             ZStack(alignment: .bottomTrailing) {
                 if episodes.isEmpty {
                     firstTimeView
                         .padding(.horizontal, Padding.mgnMobile)
+                        .padding(.vertical, 24)
                 } else {
                     contentView
-                        .padding(.horizontal, Padding.mgnMobile)
                     floatingButton
                 }
             }
+            .navigationBarTitleDisplayMode(.inline)
             .noiseBackground()
+            .navigationDestination(for: MigraineEpisode.self) { episode in
+                MigraineLogDetailView(episode: episode)
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
+                        withAnimation(.interactiveSpring(response: 0.4, dampingFraction: 0.6)) {
+                            showLoggingOptions.toggle()
+                        }
                         auth.logOut()
                     } label: {
                         Image("ProfileDefaultAvatar")
@@ -51,6 +58,9 @@ struct HomeView: View {
                 
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
+                        withAnimation(.interactiveSpring(response: 0.4, dampingFraction: 0.6)) {
+                            showLoggingOptions.toggle()
+                        }
                         auth.showConnectHealthModal(true)
                     } label: {
                         Image(systemName: "list.bullet")
@@ -84,7 +94,6 @@ struct HomeView: View {
                 }
             }
         }
-        .animation(.easeOut(duration: 0.3), value: migraineSituation)
         .overlay {
             if startAftermathFlow {
                 MTakeYourTimeView {
@@ -94,7 +103,7 @@ struct HomeView: View {
                 }
             }
         }
-
+        .animation(.easeOut(duration: 0.3), value: migraineSituation)
     }
     
     var firstTimeView : some View {
@@ -147,7 +156,9 @@ struct HomeView: View {
 
                 VStack(spacing: 8) {
                     ForEach(episodes) { episode in
-                        MigraineLogCard(episode: episode)
+                        MigraineLogCard(episode: episode) {
+                            navigationPath.append(episode)
+                        }
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -155,6 +166,8 @@ struct HomeView: View {
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(HaloColor.surface2, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .padding(.horizontal, Padding.mgnMobile)
+            .padding(.vertical, 24)
         }
         .frame(maxWidth: .infinity)
     }
@@ -207,20 +220,16 @@ struct HomeView: View {
     var floatingButton : some View {
         ZStack(alignment: .bottomTrailing) {
             if showLoggingOptions {
-                Color.clear
-                    .contentShape(Rectangle()) // makes it tappable
+                Group {
+                    BlurView(style: .dark)
+                    Color.black.opacity(0.2)
+                    }
                     .ignoresSafeArea()
                     .onTapGesture {
                         withAnimation(.interactiveSpring(response: 0.4, dampingFraction: 0.6)) {
                             showLoggingOptions = false
                         }
                     }
-                
-                Group {
-                    BlurView(style: .dark)
-                    Color.black.opacity(0.2)
-                    }
-                    .ignoresSafeArea()
                 
             }
             
@@ -358,7 +367,6 @@ private extension HomeView {
         migraineSituation = situation
         Task {
             try? await Task.sleep(for: .seconds(0.2))
-//            moveToMigraineQuestions = true
         }
     }
 }

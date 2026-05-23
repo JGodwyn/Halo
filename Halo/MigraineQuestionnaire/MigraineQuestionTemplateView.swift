@@ -31,7 +31,7 @@ struct MigraineQuestionTemplateView: View {
     /// Pass a pre-populated draft when continuing an existing episode
     /// (e.g. incoming → resolved, or marking didNotOccur).
     /// Leave nil to start a fresh log.
-    let initialDraft: MigraineEpisodeDraft? = nil
+    var initialDraft: MigraineEpisodeDraft? = nil
     let tappedCancel: () -> Void
 
     @Environment(\.modelContext) private var modelContext

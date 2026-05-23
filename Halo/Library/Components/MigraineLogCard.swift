@@ -11,7 +11,7 @@ import SwiftData
 struct MigraineLogCard: View {
 
     let episode: MigraineEpisode
-
+    let tappedCard : () -> Void
     // MARK: - Derived display values
 
     /// The date the migraine occurred (or was logged if occurredAt is missing).
@@ -33,51 +33,60 @@ struct MigraineLogCard: View {
     // MARK: - Body
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .top, spacing: 4) {
-                HaloText(text: "Log @", style: .bodyLg, color: HaloColor.textSubtle)
-                HaloText(text: logDateText, style: .bodyLg)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-            }
-
-            HaloText(text: typeLabel)
-                .lineLimit(1)
-
-            HaloText(text: addedDateText, style: .bodyMd, color: HaloColor.textSubtle)
-        }
-        .padding(.vertical, 16)
-        .padding(.trailing, 16)
-        .padding(.leading, 40)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(HaloColor.surface1, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .mask(alignment: .trailing) {
-            ZStack(alignment: .leading) {
-                Rectangle() // keeps the full card visible
-                
-                VStack(spacing: 4) {
-                    Group {
-                        Circle()
-                        Circle()
-                        Circle()
-                        Circle()
-                        Circle()
-                        Circle()
-                        Circle()
-                        Circle()
-                        Circle()
-                        Circle()
-                    }
-                    .frame(width: 12, height: 12)
+        Button {
+            tappedCard()
+        } label: {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(alignment: .top, spacing: 4) {
+                    HaloText(text: "Log @", style: .bodyLg, color: HaloColor.textSubtle)
+                    HaloText(text: logDateText, style: .bodyLg)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
                 }
-                .padding(12)
-                .blendMode(.destinationOut)
-                
-//                Image("PunctureMarks")
-//                    .blendMode(.destinationOut) // punches holes where the image is
+
+                HaloText(text: typeLabel)
+                    .lineLimit(1)
+
+                HaloText(text: addedDateText, style: .bodyMd, color: HaloColor.textSubtle)
             }
-            .compositingGroup() // required for destinationOut to work
+            .padding(.vertical, 16)
+            .padding(.trailing, 16)
+            .padding(.leading, 40)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(HaloColor.surface1, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .mask(alignment: .trailing) {
+                ZStack(alignment: .leading) {
+                    Rectangle() // keeps the full card visible
+                    VStack(spacing: 4) {
+                        Group {
+                            Circle()
+                            Circle()
+                            Circle()
+                            Circle()
+                            Circle()
+                            Circle()
+                            Circle()
+                            Circle()
+                            Circle()
+                            Circle()
+                        }
+                        .frame(width: 12, height: 12)
+                    }
+                    .padding(12)
+                    .blendMode(.destinationOut)
+                }
+                .compositingGroup() // required for destinationOut to work
+            }
         }
+        .buttonStyle(CardButtonStyle())
+    }
+}
+
+struct CardButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.9 : 1.0)
+            .animation(.interactiveSpring(response: 0.4, dampingFraction: 0.6), value: configuration.isPressed)
     }
 }
 
@@ -94,8 +103,10 @@ struct MigraineLogCard: View {
 
     return ZStack {
         Color.clear.noiseBackground()
-        MigraineLogCard(episode: episode)
-            .padding()
+        ScrollView {
+            MigraineLogCard(episode: episode) {}
+                .padding()
+        }
     }
     .modelContainer(container)
     .environment(\.font, .custom("LibreCaslonText-Regular", size: 17, relativeTo: .body))
