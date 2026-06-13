@@ -42,7 +42,7 @@ struct HomeView: View {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
                         withAnimation(.interactiveSpring(response: 0.4, dampingFraction: 0.6)) {
-                            showLoggingOptions.toggle()
+                            showLoggingOptions = false
                         }
                         auth.logOut()
                     } label: {
@@ -59,7 +59,7 @@ struct HomeView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         withAnimation(.interactiveSpring(response: 0.4, dampingFraction: 0.6)) {
-                            showLoggingOptions.toggle()
+                            showLoggingOptions = false
                         }
                         auth.showConnectHealthModal(true)
                     } label: {
@@ -169,6 +169,7 @@ struct HomeView: View {
             .padding(.horizontal, Padding.mgnMobile)
             .padding(.vertical, 24)
         }
+        .scrollIndicators(.hidden)
         .frame(maxWidth: .infinity)
     }
     
