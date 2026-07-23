@@ -18,22 +18,22 @@ struct MigraineLogDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 
-
-                
                 // MARK: - Log Fields
-                VStack(alignment: .leading, spacing: 24) {
-                    
-                    HaloText(text: "Your entry", style: .headingSm)
+                VStack(alignment: .leading, spacing: 16) {
                     
                     Button {
                         // change the status
                     } label: {
                         VStack(alignment: .leading, spacing: 4) {
-                            HaloText(text: "Current status", style: .bodyMd, color: HaloColor.textSubtle)
+                            HaloText(text: "Current status",
+                                     style: .bodyMd,
+                                     color: HaloColor.textInverse)
+                            
                             HStack {
                                 HaloText(
                                     text: episode.migraineTypeEnum?.label ?? "Migraine log",
-                                    style: .bodyLg
+                                    style: .bodyLg,
+                                    color: HaloColor.textInverse
                                 )
                                 .truncationMode(.tail)
                                 .lineLimit(1)
@@ -46,9 +46,11 @@ struct MigraineLogDetailView: View {
                         .padding(.vertical, 12)
                         .padding(.horizontal, 16)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(HaloColor.surface1, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .background(BrandColor.Powder.powder100, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
                     }
                     .buttonStyle(.plain)
+                    
+                    HaloText(text: "Your entry", style: .headingSm)
                     
                     infoCard(label: "The day is", content: logDateText)
                     
@@ -78,9 +80,9 @@ struct MigraineLogDetailView: View {
                     }
                     
                     VStack {
-                        HaloText(text: "Your notes")
                         // MARK: - Summary Note
                         if let note = episode.note, !note.isEmpty {
+                            HaloText(text: "Your notes")
                             VStack(alignment: .leading, spacing: 12) {
                                 HStack {
                                     Image(systemName: "wand.and.sparkles")
@@ -263,25 +265,15 @@ enum infoCardType {
                 .padding(.horizontal, 12)
                 .frame(minHeight: 32)
                 .padding(.vertical, 4)
-                .background(HaloColor.surface1, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .background(HaloColor.surface0, in: RoundedRectangle(cornerRadius: 1000, style: .continuous))
             }
-            .padding(.bottom, 16)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .contentShape(Rectangle())
-            .overlay(alignment: .bottom) {
-                GeometryReader { geo in
-                    Path { path in
-                        path.move(to: CGPoint(x: 0, y: 0))
-                        path.addLine(to: CGPoint(x: geo.size.width, y: 0))
-                    }
-                    .stroke(style: StrokeStyle(lineWidth: 1, dash: [1, 8]))
-                    .foregroundStyle(HaloColor.iconBold)
-                    .frame(height: 1)
-                }
-                .frame(height: 1)
-            }
+            .padding(.leading, 16)
+            .padding(.trailing, 8)
+            .padding(.vertical, 8)
+            .frame(alignment: .leading)
+            .background(HaloColor.surface1, in: RoundedRectangle(cornerRadius: 1000, style: .continuous))
         case .vertical:
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 12) {
                 HaloText(text: label, color: HaloColor.textSubtle)
                 HStack(spacing: 4) {
                     HaloText(text: content)
@@ -292,23 +284,24 @@ enum infoCardType {
                 .padding(.horizontal, 12)
                 .frame(minHeight: 32)
                 .padding(.vertical, 4)
-                .background(HaloColor.surface1, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .background(HaloColor.surface0, in: RoundedRectangle(cornerRadius: 1000, style: .continuous))
             }
-            .padding(.bottom, 16)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .contentShape(Rectangle())
-            .overlay(alignment: .bottom) {
-                GeometryReader { geo in
-                    Path { path in
-                        path.move(to: CGPoint(x: 0, y: 0))
-                        path.addLine(to: CGPoint(x: geo.size.width, y: 0))
-                    }
-                    .stroke(style: StrokeStyle(lineWidth: 1, dash: [1, 8]))
-                    .foregroundStyle(HaloColor.iconBold)
-                    .frame(height: 1)
-                }
-                .frame(height: 1)
-            }
+            .background(HaloColor.surface1, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+//            .overlay(alignment: .bottom) {
+//                GeometryReader { geo in
+//                    Path { path in
+//                        path.move(to: CGPoint(x: 0, y: 0))
+//                        path.addLine(to: CGPoint(x: geo.size.width, y: 0))
+//                    }
+//                    .stroke(style: StrokeStyle(lineWidth: 1, dash: [1, 8]))
+//                    .foregroundStyle(HaloColor.iconBold)
+//                    .frame(height: 1)
+//                }
+//                .frame(height: 1)
+//            }
         }
     }
 }

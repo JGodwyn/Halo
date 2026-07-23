@@ -97,6 +97,7 @@ struct MigraineQuestionTemplateView: View {
                     }
                 }
                 .padding(.horizontal, Padding.mgnMobile)
+                .padding(.top, 16)
 
                 // MARK: Step content
                 // ZStack with an explicit .id() forces SwiftUI to fully swap the view
